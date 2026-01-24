@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ArrowLeft, Loader2, Briefcase, Play, Square } from "lucide-react";
+import { Send, ArrowLeft, Loader2, Briefcase, Users, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { JobCardsPanel } from "@/components/JobCardsPanel";
+import { ApplicantCardsPanel } from "@/components/ApplicantCardsPanel";
 import { useJobRecommendations } from "@/hooks/useJobRecommendations";
+import { useApplicantRecommendations } from "@/hooks/useApplicantRecommendations";
 import { useDemoMode } from "@/hooks/useDemoMode";
 import type { Skill } from "@/hooks/useSkillScores";
+import type { UserType } from "@/components/UserTypeSelector";
 
 interface Message {
   role: "user" | "assistant";
@@ -20,6 +23,7 @@ interface TextChatPanelProps {
   onSendMessage: (content: string) => void;
   onBack: () => void;
   skills: Skill[];
+  userType: UserType;
 }
 
 export const TextChatPanel = ({
@@ -28,14 +32,22 @@ export const TextChatPanel = ({
   onSendMessage,
   onBack,
   skills,
+  userType,
 }: TextChatPanelProps) => {
   const [input, setInput] = useState("");
-  const [showJobCards, setShowJobCards] = useState(false);
+  const [showResultsPanel, setShowResultsPanel] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  const { isDemoMode, currentPersona, startDemo, stopDemo, generateResponse } = useDemoMode();
+  const { isDemoMode, startDemo, stopDemo, generateResponse } = useDemoMode();
   const recommendedJobs = useJobRecommendations(messages, skills);
-  const hasJobRecommendations = recommendedJobs.length > 0;
+  const recommendedApplicants = useApplicantRecommendations(messages);
+  
+  const hasResults = userType === "recruiter" 
+    ? recommendedApplicants.length > 0 
+    : recommendedJobs.length > 0;
+  const resultsCount = userType === "recruiter" 
+    ? recommendedApplicants.length 
+    : recommendedJobs.length;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -43,12 +55,12 @@ export const TextChatPanel = ({
     }
   }, [messages]);
 
-  // Auto-show job cards when recommendations are detected
+  // Auto-show results panel when recommendations are detected
   useEffect(() => {
-    if (hasJobRecommendations && !showJobCards) {
-      setShowJobCards(true);
+    if (hasResults && !showResultsPanel) {
+      setShowResultsPanel(true);
     }
-  }, [hasJobRecommendations]);
+  }, [hasResults]);
 
   // Auto-respond in demo mode
   useEffect(() => {
@@ -74,21 +86,37 @@ export const TextChatPanel = ({
       onSendMessage(input);
       setInput("");
       // Switch back to chat when user sends a new message
-      setShowJobCards(false);
+      setShowResultsPanel(false);
     }
   };
 
-  // Show job cards panel
-  if (showJobCards && hasJobRecommendations) {
+  // Show appropriate results panel
+  if (showResultsPanel && hasResults) {
+    if (userType === "recruiter") {
+      return (
+        <ApplicantCardsPanel
+          applicants={recommendedApplicants}
+          onBack={onBack}
+          onShowChat={() => setShowResultsPanel(false)}
+        />
+      );
+    }
     return (
       <JobCardsPanel
         jobs={recommendedJobs}
         skills={skills}
         onBack={onBack}
-        onShowChat={() => setShowJobCards(false)}
+        onShowChat={() => setShowResultsPanel(false)}
       />
     );
   }
+
+  const headerTitle = userType === "recruiter" 
+    ? "Chat with Recruitment Advisor" 
+    : "Chat with Career Advisor";
+
+  const ResultsIcon = userType === "recruiter" ? Users : Briefcase;
+  const resultsLabel = userType === "recruiter" ? "Candidates" : "Jobs";
 
   return (
     <motion.div
@@ -108,18 +136,18 @@ export const TextChatPanel = ({
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h2 className="text-lg font-bold text-foreground">Chat with Career Advisor</h2>
+          <h2 className="text-lg font-bold text-foreground">{headerTitle}</h2>
         </div>
         <div className="flex items-center gap-2">
-          {hasJobRecommendations && (
+          {hasResults && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowJobCards(true)}
+              onClick={() => setShowResultsPanel(true)}
               className="rounded-full gap-2"
             >
-              <Briefcase className="w-4 h-4" />
-              View Jobs ({recommendedJobs.length})
+              <ResultsIcon className="w-4 h-4" />
+              View {resultsLabel} ({resultsCount})
             </Button>
           )}
           {/* Demo button */}
@@ -150,7 +178,9 @@ export const TextChatPanel = ({
         <div className="space-y-4">
           {messages.length === 0 && (
             <p className="text-center text-muted-foreground text-sm py-8">
-              Start a conversation with your career advisor...
+              {userType === "recruiter" 
+                ? "Start a conversation with your recruitment advisor..."
+                : "Start a conversation with your career advisor..."}
             </p>
           )}
           <AnimatePresence mode="popLayout">

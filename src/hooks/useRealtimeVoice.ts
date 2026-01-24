@@ -1,8 +1,14 @@
 import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ADVISOR_SYSTEM_PROMPT, INITIAL_GREETING_PROMPT } from "@/constants/advisorPrompt";
+import { 
+  ADVISOR_SYSTEM_PROMPT, 
+  INITIAL_GREETING_PROMPT,
+  RECRUITER_SYSTEM_PROMPT,
+  RECRUITER_GREETING_PROMPT 
+} from "@/constants/advisorPrompt";
 import type { VoicePersona } from "@/components/VoicePersonaSelector";
+import type { UserType } from "@/components/UserTypeSelector";
 
 interface Message {
   role: "user" | "assistant";
@@ -15,7 +21,7 @@ interface UseRealtimeVoiceReturn {
   isSpeaking: boolean;
   isListening: boolean;
   messages: Message[];
-  startConversation: (persona: VoicePersona) => Promise<void>;
+  startConversation: (persona: VoicePersona, userType: UserType) => Promise<void>;
   stopConversation: () => void;
 }
 
@@ -107,8 +113,19 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
     [playNextInQueue],
   );
 
-  const startConversation = useCallback(async (persona: VoicePersona = "coral") => {
+  const getSystemPrompt = (userType: UserType) => {
+    return userType === "recruiter" ? RECRUITER_SYSTEM_PROMPT : ADVISOR_SYSTEM_PROMPT;
+  };
+
+  const getGreetingPrompt = (userType: UserType) => {
+    return userType === "recruiter" ? RECRUITER_GREETING_PROMPT : INITIAL_GREETING_PROMPT;
+  };
+
+  const startConversation = useCallback(async (persona: VoicePersona = "coral", userType: UserType = "jobseeker") => {
     setIsConnecting(true);
+
+    const systemPrompt = getSystemPrompt(userType);
+    const greetingPrompt = getGreetingPrompt(userType);
 
     try {
       // Get ephemeral token from edge function with selected persona
@@ -140,7 +157,7 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
             type: "session.update",
             session: {
               modalities: ["text", "audio"],
-              instructions: ADVISOR_SYSTEM_PROMPT,
+              instructions: systemPrompt,
               voice: persona,
               input_audio_format: "pcm16",
               output_audio_format: "pcm16",
@@ -209,7 +226,7 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
 
           setIsConnected(true);
           setIsListening(true);
-          toast.success("Connected to Career Advisor");
+          toast.success(userType === "recruiter" ? "Connected to Recruitment Advisor" : "Connected to Career Advisor");
 
           // Trigger AI to introduce itself
           ws.send(
@@ -221,7 +238,7 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
                 content: [
                   {
                     type: "input_text",
-                    text: INITIAL_GREETING_PROMPT,
+                    text: greetingPrompt,
                   },
                 ],
               },
