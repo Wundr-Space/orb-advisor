@@ -103,78 +103,74 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Shadow */}
-          <ellipse
-            cx="110"
-            cy="170"
-            rx="55"
-            ry="8"
+          {/* Shadow - angular */}
+          <polygon
+            points="55,168 165,168 155,175 65,175"
             className="fill-foreground/10"
           />
 
-          {/* Blob body - organic mustard yellow shape */}
-          <path
-            d="M25 100 
-               C20 55, 50 20, 110 25 
-               C170 30, 195 60, 190 105 
-               C185 145, 155 165, 110 160 
-               C60 155, 30 140, 25 100Z"
+          {/* Body - angular polygonal shape */}
+          <polygon
+            points="110,20 170,35 195,70 190,120 165,155 110,165 55,155 30,120 25,70 50,35"
             fill="#E8A838"
           />
+          
+          {/* Inner facet highlights */}
+          <polygon
+            points="110,25 160,38 180,68 110,75 40,68 60,38"
+            fill="#F0B848"
+            opacity="0.6"
+          />
 
-          {/* Glasses - half-frame style with straight top bar */}
-          {/* Main top bar extending beyond blob */}
+          {/* Glasses - angular frame style */}
+          {/* Main top bar */}
           <path
             d="M15 72 L205 72"
             strokeWidth="5"
-            strokeLinecap="round"
+            strokeLinecap="square"
             className="stroke-foreground"
           />
           
-          {/* Left lens - trapezoid half-frame */}
+          {/* Left lens - hexagonal half-frame */}
           <path
-            d="M45 72 L45 95 C45 105, 55 110, 75 110 C95 110, 105 105, 105 95 L105 72"
+            d="M45 72 L45 90 L55 105 L95 105 L105 90 L105 72"
             strokeWidth="4"
             fill="none"
+            strokeLinejoin="miter"
             className="stroke-foreground"
           />
           
-          {/* Right lens - trapezoid half-frame */}
+          {/* Right lens - hexagonal half-frame */}
           <path
-            d="M115 72 L115 95 C115 105, 125 110, 145 110 C165 110, 175 105, 175 95 L175 72"
+            d="M115 72 L115 90 L125 105 L165 105 L175 90 L175 72"
             strokeWidth="4"
             fill="none"
+            strokeLinejoin="miter"
             className="stroke-foreground"
           />
 
-          {/* Eyes (inside glasses) */}
+          {/* Eyes (inside glasses) - diamond shaped */}
           <motion.g variants={eyeVariants} animate={getAnimationVariant()}>
-            {/* Left eye - small square-ish */}
-            <rect x="70" y="82" width="10" height="12" rx="2" className="fill-foreground" />
-            {/* Right eye - small square-ish */}
-            <rect x="140" y="82" width="10" height="12" rx="2" className="fill-foreground" />
+            {/* Left eye - diamond */}
+            <polygon points="75,82 80,88 75,94 70,88" className="fill-foreground" />
+            {/* Right eye - diamond */}
+            <polygon points="145,82 150,88 145,94 140,88" className="fill-foreground" />
           </motion.g>
 
-          {/* South Park style mouth - only visible when speaking */}
+          {/* Angular mouth - only visible when speaking */}
           <motion.g
             variants={mouthVariants}
             animate={getAnimationVariant()}
             style={{ originY: 0, transformOrigin: "110px 130px" }}
           >
-            {/* Mouth opening - simple oval that flaps */}
-            <ellipse
-              cx="110"
-              cy="135"
-              rx="18"
-              ry="12"
+            {/* Mouth opening - hexagonal shape */}
+            <polygon
+              points="92,128 128,128 135,138 128,148 92,148 85,138"
               className="fill-foreground"
             />
-            {/* Inside of mouth */}
-            <ellipse
-              cx="110"
-              cy="137"
-              rx="12"
-              ry="7"
+            {/* Inside of mouth - smaller hexagon */}
+            <polygon
+              points="97,132 123,132 128,140 123,146 97,146 92,140"
               className="fill-destructive"
             />
           </motion.g>
