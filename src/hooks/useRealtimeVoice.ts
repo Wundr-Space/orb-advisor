@@ -157,7 +157,7 @@ Be warm, encouraging, and practical in your advice. Ask clarifying questions whe
                 type: "server_vad",
                 threshold: 0.5,
                 prefix_padding_ms: 300,
-                silence_duration_ms: 500,
+                silence_duration_ms: 1200,
               },
             },
           }),
