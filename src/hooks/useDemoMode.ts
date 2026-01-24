@@ -1,8 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import { DemoPersona, getRandomPersona } from "@/data/demoPersonas";
+import { RecruiterDemoPersona, getRandomRecruiterPersona } from "@/data/recruiterDemoPersonas";
 import { toast } from "sonner";
+import type { UserType } from "@/components/UserTypeSelector";
 
-type QuestionType = 
+// Job seeker question types
+type JobSeekerQuestionType = 
   | "askingName"
   | "greeting"
   | "analyticalThinking"
@@ -17,18 +20,31 @@ type QuestionType =
   | "communication"
   | "general";
 
+// Recruiter question types
+type RecruiterQuestionType =
+  | "askingName"
+  | "roleDescription"
+  | "skills"
+  | "experience"
+  | "salary"
+  | "teamCulture"
+  | "timeline"
+  | "challenges"
+  | "general";
+
 interface UseDemoModeReturn {
   isDemoMode: boolean;
   currentPersona: DemoPersona | null;
-  startDemo: () => void;
+  currentRecruiterPersona: RecruiterDemoPersona | null;
+  startDemo: (userType: UserType) => void;
   stopDemo: () => void;
   generateResponse: (aiMessage: string) => string | null;
 }
 
-const detectQuestionType = (message: string): QuestionType => {
+const detectJobSeekerQuestionType = (message: string): JobSeekerQuestionType => {
   const lower = message.toLowerCase();
   
-  // Asking for name detection (should come first as it's the first question)
+  // Asking for name detection
   if (
     lower.includes("what's your name") ||
     lower.includes("what is your name") ||
@@ -183,22 +199,142 @@ const detectQuestionType = (message: string): QuestionType => {
   return "general";
 };
 
+const detectRecruiterQuestionType = (message: string): RecruiterQuestionType => {
+  const lower = message.toLowerCase();
+  
+  // Asking for name
+  if (
+    lower.includes("what's your name") ||
+    lower.includes("what is your name") ||
+    lower.includes("your name") ||
+    lower.includes("who am i speaking") ||
+    lower.includes("may i ask your name") ||
+    lower.includes("call you") ||
+    lower.includes("introduce yourself")
+  ) {
+    return "askingName";
+  }
+  
+  // Role description
+  if (
+    lower.includes("position") ||
+    lower.includes("role") ||
+    lower.includes("job") ||
+    lower.includes("hiring for") ||
+    lower.includes("looking to fill") ||
+    lower.includes("what are you looking for") ||
+    lower.includes("tell me about the")
+  ) {
+    return "roleDescription";
+  }
+
+  // Skills requirements
+  if (
+    lower.includes("skill") ||
+    lower.includes("qualification") ||
+    lower.includes("requirement") ||
+    lower.includes("must have") ||
+    lower.includes("need to know") ||
+    lower.includes("looking for in a candidate") ||
+    lower.includes("technical")
+  ) {
+    return "skills";
+  }
+
+  // Experience level
+  if (
+    lower.includes("experience") ||
+    lower.includes("years") ||
+    lower.includes("senior") ||
+    lower.includes("junior") ||
+    lower.includes("level") ||
+    lower.includes("background")
+  ) {
+    return "experience";
+  }
+
+  // Salary/compensation
+  if (
+    lower.includes("salary") ||
+    lower.includes("compensation") ||
+    lower.includes("pay") ||
+    lower.includes("benefit") ||
+    lower.includes("package") ||
+    lower.includes("offer")
+  ) {
+    return "salary";
+  }
+
+  // Team culture
+  if (
+    lower.includes("team") ||
+    lower.includes("culture") ||
+    lower.includes("environment") ||
+    lower.includes("work with") ||
+    lower.includes("colleague") ||
+    lower.includes("company")
+  ) {
+    return "teamCulture";
+  }
+
+  // Timeline
+  if (
+    lower.includes("when") ||
+    lower.includes("urgent") ||
+    lower.includes("start date") ||
+    lower.includes("timeline") ||
+    lower.includes("fill this") ||
+    lower.includes("soon") ||
+    lower.includes("quickly")
+  ) {
+    return "timeline";
+  }
+
+  // Challenges
+  if (
+    lower.includes("challenge") ||
+    lower.includes("problem") ||
+    lower.includes("difficult") ||
+    lower.includes("issue") ||
+    lower.includes("why this role") ||
+    lower.includes("reason")
+  ) {
+    return "challenges";
+  }
+
+  return "general";
+};
+
 export const useDemoMode = (): UseDemoModeReturn => {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [currentPersona, setCurrentPersona] = useState<DemoPersona | null>(null);
+  const [currentRecruiterPersona, setCurrentRecruiterPersona] = useState<RecruiterDemoPersona | null>(null);
   const usedResponses = useRef<Set<string>>(new Set());
-  const questionCount = useRef(0);
+  const currentUserType = useRef<UserType>("jobseeker");
 
-  const startDemo = useCallback(() => {
-    const persona = getRandomPersona();
-    setCurrentPersona(persona);
-    setIsDemoMode(true);
+  const startDemo = useCallback((userType: UserType) => {
+    currentUserType.current = userType;
     usedResponses.current.clear();
-    questionCount.current = 0;
-    toast.success(`Demo started: ${persona.currentRole} (${persona.yearsExperience} years)`, {
-      description: `Goal: ${persona.careerGoal}`,
-      duration: 4000,
-    });
+    
+    if (userType === "recruiter") {
+      const persona = getRandomRecruiterPersona();
+      setCurrentRecruiterPersona(persona);
+      setCurrentPersona(null);
+      setIsDemoMode(true);
+      toast.success(`Demo started: Hiring ${persona.job.title}`, {
+        description: `Company: ${persona.company} (${persona.job.location})`,
+        duration: 4000,
+      });
+    } else {
+      const persona = getRandomPersona();
+      setCurrentPersona(persona);
+      setCurrentRecruiterPersona(null);
+      setIsDemoMode(true);
+      toast.success(`Demo started: ${persona.currentRole} (${persona.yearsExperience} years)`, {
+        description: `Goal: ${persona.careerGoal}`,
+        duration: 4000,
+      });
+    }
   }, []);
 
   const stopDemo = useCallback(() => {
@@ -206,8 +342,8 @@ export const useDemoMode = (): UseDemoModeReturn => {
     toast.info("Demo mode stopped");
   }, []);
 
-  const generateResponse = useCallback((aiMessage: string): string | null => {
-    if (!currentPersona || !isDemoMode) return null;
+  const generateJobSeekerResponse = useCallback((aiMessage: string): string | null => {
+    if (!currentPersona) return null;
 
     // Check if this looks like a skills summary or conclusion
     const lower = aiMessage.toLowerCase();
@@ -218,7 +354,6 @@ export const useDemoMode = (): UseDemoModeReturn => {
       lower.includes("your top skills") ||
       lower.includes("here's what i've learned")
     ) {
-      // Stop demo after skills summary
       setTimeout(() => {
         setIsDemoMode(false);
         toast.success("Demo complete! Skills assessment finished.", {
@@ -228,10 +363,7 @@ export const useDemoMode = (): UseDemoModeReturn => {
       return null;
     }
 
-    questionCount.current++;
-
-    // Detect question type
-    const questionType = detectQuestionType(aiMessage);
+    const questionType = detectJobSeekerQuestionType(aiMessage);
     
     // Build a pool of all available responses
     const allResponses: { type: string; response: string }[] = [];
@@ -251,7 +383,7 @@ export const useDemoMode = (): UseDemoModeReturn => {
       }
     });
     
-    // Add other unused specific responses as fallback (exclude "general" which is an array)
+    // Add other unused specific responses as fallback
     const specificTypes = [
       "askingName", "greeting", "analyticalThinking", "resilience", "leadership",
       "creativeThinking", "customerService", "technology", "learning",
@@ -270,7 +402,6 @@ export const useDemoMode = (): UseDemoModeReturn => {
     // If all responses used, reset and start over
     if (allResponses.length === 0) {
       usedResponses.current.clear();
-      // Return greeting to restart
       const greetingResponse = currentPersona.commonResponses.greeting;
       usedResponses.current.add(greetingResponse);
       return greetingResponse;
@@ -280,11 +411,93 @@ export const useDemoMode = (): UseDemoModeReturn => {
     const selectedResponse = allResponses[0];
     usedResponses.current.add(selectedResponse.response);
     return selectedResponse.response;
-  }, [currentPersona, isDemoMode]);
+  }, [currentPersona]);
+
+  const generateRecruiterResponse = useCallback((aiMessage: string): string | null => {
+    if (!currentRecruiterPersona) return null;
+
+    // Check if this looks like a candidate profile or conclusion
+    const lower = aiMessage.toLowerCase();
+    if (
+      lower.includes("ideal candidate profile") ||
+      lower.includes("matching candidates") ||
+      lower.includes("candidate profile") ||
+      lower.includes("based on your requirements") ||
+      lower.includes("here are some candidates") ||
+      lower.includes("top candidates")
+    ) {
+      setTimeout(() => {
+        setIsDemoMode(false);
+        toast.success("Demo complete! Candidate matching finished.", {
+          duration: 3000,
+        });
+      }, 500);
+      return null;
+    }
+
+    const questionType = detectRecruiterQuestionType(aiMessage);
+    
+    // Build a pool of all available responses
+    const allResponses: { type: string; response: string }[] = [];
+    
+    // Add the specific response for the detected question type first (priority)
+    if (questionType !== "general") {
+      const specificResponse = currentRecruiterPersona.commonResponses[questionType];
+      if (specificResponse && !usedResponses.current.has(specificResponse)) {
+        allResponses.push({ type: questionType, response: specificResponse });
+      }
+    }
+    
+    // Add all general responses
+    currentRecruiterPersona.commonResponses.general.forEach((response, i) => {
+      if (!usedResponses.current.has(response)) {
+        allResponses.push({ type: `general-${i}`, response });
+      }
+    });
+    
+    // Add other unused specific responses as fallback
+    const specificTypes = [
+      "askingName", "roleDescription", "skills", "experience", 
+      "salary", "teamCulture", "timeline", "challenges"
+    ] as const;
+    
+    specificTypes.forEach(type => {
+      if (type !== questionType) {
+        const response = currentRecruiterPersona.commonResponses[type];
+        if (response && !usedResponses.current.has(response)) {
+          allResponses.push({ type, response });
+        }
+      }
+    });
+
+    // If all responses used, reset and start over
+    if (allResponses.length === 0) {
+      usedResponses.current.clear();
+      const askingNameResponse = currentRecruiterPersona.commonResponses.askingName;
+      usedResponses.current.add(askingNameResponse);
+      return askingNameResponse;
+    }
+
+    // Prefer the matched question type, otherwise pick randomly
+    const selectedResponse = allResponses[0];
+    usedResponses.current.add(selectedResponse.response);
+    return selectedResponse.response;
+  }, [currentRecruiterPersona]);
+
+  const generateResponse = useCallback((aiMessage: string): string | null => {
+    if (!isDemoMode) return null;
+
+    if (currentUserType.current === "recruiter") {
+      return generateRecruiterResponse(aiMessage);
+    } else {
+      return generateJobSeekerResponse(aiMessage);
+    }
+  }, [isDemoMode, generateJobSeekerResponse, generateRecruiterResponse]);
 
   return {
     isDemoMode,
     currentPersona,
+    currentRecruiterPersona,
     startDemo,
     stopDemo,
     generateResponse,
