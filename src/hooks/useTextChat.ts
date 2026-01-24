@@ -1,7 +1,13 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ADVISOR_SYSTEM_PROMPT, INITIAL_GREETING_PROMPT } from "@/constants/advisorPrompt";
+import { 
+  ADVISOR_SYSTEM_PROMPT, 
+  INITIAL_GREETING_PROMPT,
+  RECRUITER_SYSTEM_PROMPT,
+  RECRUITER_GREETING_PROMPT 
+} from "@/constants/advisorPrompt";
+import type { UserType } from "@/components/UserTypeSelector";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,13 +19,22 @@ interface UseTextChatReturn {
   isLoading: boolean;
   sendMessage: (content: string) => Promise<void>;
   clearMessages: () => void;
-  initiateConversation: () => Promise<void>;
+  initiateConversation: (userType: UserType) => Promise<void>;
 }
 
 export const useTextChat = (): UseTextChatReturn => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitiated, setHasInitiated] = useState(false);
+  const [currentUserType, setCurrentUserType] = useState<UserType>("jobseeker");
+
+  const getSystemPrompt = (userType: UserType) => {
+    return userType === "recruiter" ? RECRUITER_SYSTEM_PROMPT : ADVISOR_SYSTEM_PROMPT;
+  };
+
+  const getGreetingPrompt = (userType: UserType) => {
+    return userType === "recruiter" ? RECRUITER_GREETING_PROMPT : INITIAL_GREETING_PROMPT;
+  };
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return;
@@ -35,7 +50,7 @@ export const useTextChat = (): UseTextChatReturn => {
             role: m.role,
             content: m.content,
           })),
-          systemPrompt: ADVISOR_SYSTEM_PROMPT,
+          systemPrompt: getSystemPrompt(currentUserType),
         },
       });
 
@@ -52,24 +67,25 @@ export const useTextChat = (): UseTextChatReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, currentUserType]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
     setHasInitiated(false);
   }, []);
 
-  const initiateConversation = useCallback(async () => {
+  const initiateConversation = useCallback(async (userType: UserType) => {
     if (hasInitiated || isLoading) return;
     
     setHasInitiated(true);
+    setCurrentUserType(userType);
     setIsLoading(true);
 
     try {
       const { data, error } = await supabase.functions.invoke("text-chat", {
         body: {
-          messages: [{ role: "user", content: INITIAL_GREETING_PROMPT }],
-          systemPrompt: ADVISOR_SYSTEM_PROMPT,
+          messages: [{ role: "user", content: getGreetingPrompt(userType) }],
+          systemPrompt: getSystemPrompt(userType),
         },
       });
 
