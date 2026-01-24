@@ -162,7 +162,7 @@ const Index = () => {
             <img 
               src={logo} 
               alt="Get In - AI Career Advice" 
-              className="h-16 md:h-20 w-auto"
+              className="h-24 md:h-32 w-auto"
             />
           </div>
           <p className="text-muted-foreground text-center max-w-md text-lg">
