@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { JOBS_DATA, type Job } from "@/data/jobsData";
+import { Skill } from "@/hooks/useSkillScores";
 
 interface Message {
   role: "user" | "assistant";
@@ -8,46 +9,90 @@ interface Message {
 
 export interface JobRecommendation extends Job {
   matchReason?: string;
+  matchedSkills: string[];
+  matchScore: number;
 }
 
-export const useJobRecommendations = (messages: Message[]): JobRecommendation[] => {
+/**
+ * Detects when the AI has provided job recommendations and returns matching jobs
+ * based on the user's assessed skills (score >= 3).
+ */
+export const useJobRecommendations = (
+  messages: Message[],
+  skills: Skill[]
+): JobRecommendation[] => {
   return useMemo(() => {
-    // Look for job recommendations in the last assistant message
+    // Check if the last assistant message contains job recommendation indicators
     const lastAssistantMessage = [...messages]
       .reverse()
       .find((m) => m.role === "assistant");
 
     if (!lastAssistantMessage) return [];
 
-    const content = lastAssistantMessage.content;
+    const content = lastAssistantMessage.content.toLowerCase();
 
-    // Check if the message contains job recommendations
-    // Look for patterns like job titles from our data
-    const recommendedJobs: JobRecommendation[] = [];
+    // Check for job recommendation signals in the message
+    const hasJobRecommendationSignal =
+      content.includes("recommended jobs") ||
+      content.includes("job recommendations") ||
+      content.includes("jobs that align") ||
+      content.includes("roles that match") ||
+      content.includes("positions that suit") ||
+      content.includes("career opportunities") ||
+      content.includes("jobs in south wales");
 
-    for (const job of JOBS_DATA) {
-      // Match job title in the message (case-insensitive)
-      const titleRegex = new RegExp(`\\b${escapeRegex(job.title)}\\b`, "i");
-      if (titleRegex.test(content)) {
-        // Try to extract match reason - look for text after the job title
-        const matchReasonRegex = new RegExp(
-          `${escapeRegex(job.title)}[^.]*\\.?\\s*([^.]+\\.)?`,
-          "i"
-        );
-        const match = content.match(matchReasonRegex);
-        
-        recommendedJobs.push({
-          ...job,
-          matchReason: match?.[1]?.trim() || undefined,
-        });
+    if (!hasJobRecommendationSignal) return [];
+
+    // Filter to strong skills (score >= 3)
+    const strongSkills = skills.filter(
+      (skill) => skill.score !== null && skill.score >= 3
+    );
+
+    if (strongSkills.length === 0) return [];
+
+    // Create a map for quick skill score lookup
+    const skillScoreMap = new Map<string, number>();
+    strongSkills.forEach((skill) => {
+      if (skill.score !== null) {
+        skillScoreMap.set(skill.name.toLowerCase(), skill.score);
       }
-    }
+    });
 
-    // Limit to 5 recommendations
-    return recommendedJobs.slice(0, 5);
-  }, [messages]);
+    // Score each job based on skill matches
+    const scoredJobs: JobRecommendation[] = JOBS_DATA.map((job) => {
+      const matchedSkills: string[] = [];
+      let matchScore = 0;
+
+      job.skills.forEach((jobSkill) => {
+        const userScore = skillScoreMap.get(jobSkill.toLowerCase());
+        if (userScore !== undefined) {
+          matchedSkills.push(jobSkill);
+          matchScore += userScore;
+        }
+      });
+
+      return {
+        ...job,
+        matchedSkills,
+        matchScore,
+        matchReason:
+          matchedSkills.length > 0
+            ? `Matches your ${matchedSkills.join(", ")} skills`
+            : undefined,
+      };
+    });
+
+    // Filter to jobs with at least one match, sort by score, return top 5
+    return scoredJobs
+      .filter((job) => job.matchedSkills.length > 0)
+      .sort((a, b) => {
+        // First by number of matched skills
+        if (b.matchedSkills.length !== a.matchedSkills.length) {
+          return b.matchedSkills.length - a.matchedSkills.length;
+        }
+        // Then by total match score
+        return b.matchScore - a.matchScore;
+      })
+      .slice(0, 5);
+  }, [messages, skills]);
 };
-
-function escapeRegex(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}

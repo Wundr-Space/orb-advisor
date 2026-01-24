@@ -252,6 +252,7 @@ const Index = () => {
                 isLoading={isTextLoading}
                 onSendMessage={sendMessage}
                 onBack={handleBack}
+                skills={skills}
               />
             </motion.div>
           )}
