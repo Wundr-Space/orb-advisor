@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Briefcase, ArrowLeft, MessageSquare, Loader2 } from "lucide-react";
+import { Briefcase, ArrowLeft, MessageSquare, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { JobMatchCard } from "@/components/JobMatchCard";
 import type { JobRecommendation } from "@/hooks/useJobRecommendations";
 import type { Skill } from "@/hooks/useSkillScores";
+import { toast } from "sonner";
 
 interface JobCardsPanelProps {
   jobs: JobRecommendation[];
@@ -14,6 +15,18 @@ interface JobCardsPanelProps {
 }
 
 export const JobCardsPanel = ({ jobs, skills, onBack, onShowChat }: JobCardsPanelProps) => {
+  const handleBuildCV = () => {
+    toast.success("CV Builder coming soon!", {
+      description: "We're working on this feature to help you create a standout CV.",
+    });
+  };
+
+  const handleApplyDirect = () => {
+    toast.success("Direct applications coming soon!", {
+      description: "Soon you'll be able to apply to jobs directly from here.",
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -77,6 +90,40 @@ export const JobCardsPanel = ({ jobs, skills, onBack, onShowChat }: JobCardsPane
           </div>
         )}
       </ScrollArea>
+
+      {/* Next Steps Footer */}
+      {jobs.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-4 border-t border-border bg-muted/30"
+        >
+          <div className="text-center mb-3">
+            <h3 className="font-semibold text-foreground">What would you like to do next?</h3>
+            <p className="text-sm text-muted-foreground">Choose how you'd like to proceed with your job search</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={handleBuildCV}
+              className="gap-2 rounded-full px-6"
+              size="lg"
+            >
+              <FileText className="w-5 h-5" />
+              Help me build my CV
+            </Button>
+            <Button
+              onClick={handleApplyDirect}
+              variant="outline"
+              className="gap-2 rounded-full px-6"
+              size="lg"
+            >
+              <ExternalLink className="w-5 h-5" />
+              I'll apply direct
+            </Button>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
