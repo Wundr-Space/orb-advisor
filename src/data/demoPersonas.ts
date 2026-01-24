@@ -1,10 +1,12 @@
 export interface DemoPersona {
   id: string;
+  name: string;
   currentRole: string;
   yearsExperience: number;
   careerGoal: string;
   personality: string;
   commonResponses: {
+    askingName: string;
     greeting: string;
     analyticalThinking: string;
     resilience: string;
@@ -23,11 +25,13 @@ export interface DemoPersona {
 export const demoPersonas: DemoPersona[] = [
   {
     id: "postal-clerk",
+    name: "Marcus",
     currentRole: "Postal Service Clerk",
     yearsExperience: 12,
     careerGoal: "logistics coordinator or supply chain analyst",
     personality: "Reliable and methodical, with strong organizational skills",
     commonResponses: {
+      askingName: "I'm Marcus. Nice to meet you!",
       greeting: "I've been working at the post office for 12 years, mostly handling package sorting and customer window services. I'm looking to transition into something with more growth potential, maybe logistics or supply chain work.",
       analyticalThinking: "Every day I had to analyze delivery routes and package volumes to optimize our sorting process. When we got a surge of holiday packages, I developed a system to prioritize time-sensitive mail that reduced our backlog by 40%.",
       resilience: "When USPS went through major restructuring, our team was cut in half but the workload stayed the same. I adapted by cross-training on multiple positions and helped train newer staff to handle the increased demand.",
@@ -48,11 +52,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "bank-teller",
+    name: "Sarah",
     currentRole: "Bank Teller",
     yearsExperience: 8,
     careerGoal: "financial advisor or client relationship manager",
     personality: "Personable and detail-oriented, with strong numerical skills",
     commonResponses: {
+      askingName: "My name's Sarah. Lovely to chat with you!",
       greeting: "I've been a bank teller for 8 years, and I really enjoy helping customers with their finances. But I'm looking to move into a role where I can do more comprehensive financial advising rather than just transactions.",
       analyticalThinking: "I analyze customer accounts daily to identify discrepancies and potential fraud. Last year, I caught a pattern of suspicious transactions that led to uncovering a fraud ring affecting multiple accounts.",
       resilience: "When our bank merged with another institution, everything changed - new systems, new policies, new customers. I was one of the first to get certified on the new platform and helped train my colleagues through the transition.",
@@ -73,11 +79,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "data-entry-clerk",
+    name: "Jamie",
     currentRole: "Data Entry Clerk",
     yearsExperience: 3,
     careerGoal: "data analyst or database administrator",
     personality: "Precise and focused, with strong pattern recognition",
     commonResponses: {
+      askingName: "I'm Jamie! Thanks for asking.",
       greeting: "I've been doing data entry for about 3 years now. I'm fast and accurate, but I want to do more than just inputting data - I want to actually analyze it and help make decisions.",
       analyticalThinking: "Even though my job is technically just entering data, I started noticing patterns - like which vendors had the most errors in their submissions. I created a report that helped the team identify and address quality issues.",
       resilience: "Our department went through a major software migration while I was still relatively new. I stayed late to learn the new system and became one of the fastest adapters on the team.",
@@ -98,11 +106,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "cashier",
+    name: "Taylor",
     currentRole: "Retail Cashier",
     yearsExperience: 5,
     careerGoal: "retail management or customer success specialist",
     personality: "Friendly and efficient, with strong people skills",
     commonResponses: {
+      askingName: "I'm Taylor. Great to meet you!",
       greeting: "I've worked as a cashier at a large retail store for 5 years. I love interacting with customers, but I'm ready for a role with more responsibility and growth opportunities.",
       analyticalThinking: "I track my till accuracy religiously and analyze my own error patterns. I realized most of my mistakes happened during the lunch rush, so I developed a double-check system for busy periods.",
       resilience: "During the pandemic, everything about my job changed overnight - new safety protocols, supply shortages, stressed customers. I adapted quickly and helped calm anxious shoppers.",
@@ -123,11 +133,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "admin-assistant",
+    name: "Rachel",
     currentRole: "Administrative Assistant",
     yearsExperience: 7,
     careerGoal: "office manager or project coordinator",
     personality: "Organized and proactive, with excellent multitasking abilities",
     commonResponses: {
+      askingName: "I'm Rachel. Pleasure to meet you!",
       greeting: "I've been an administrative assistant for 7 years, supporting multiple executives. I basically keep the office running, but I'm ready to take on more strategic responsibilities.",
       analyticalThinking: "I manage complex schedules and budgets, always analyzing the best use of everyone's time. I created a meeting efficiency report that helped executives reclaim 10 hours per week.",
       resilience: "Our company went through a major reorganization, and I suddenly had to support twice as many people with the same hours. I reprioritized ruthlessly and automated what I could.",
@@ -148,11 +160,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "printing-worker",
+    name: "Dave",
     currentRole: "Printing Press Operator",
     yearsExperience: 15,
     careerGoal: "production manager or quality control specialist",
     personality: "Meticulous and mechanical, with strong technical aptitude",
     commonResponses: {
+      askingName: "Name's Dave. Good to meet you!",
       greeting: "I've been running printing presses for 15 years. I know the industry is changing with digital, so I'm looking to leverage my production experience in a role with more longevity.",
       analyticalThinking: "I constantly analyze print quality, adjusting for temperature, humidity, and paper stock. I can spot a color shift before the calibration tools catch it.",
       resilience: "The print industry has shrunk dramatically. I've adapted by learning digital printing, large format, and specialty materials. I refuse to become obsolete.",
@@ -173,11 +187,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "bookkeeper",
+    name: "Linda",
     currentRole: "Bookkeeping and Payroll Clerk",
     yearsExperience: 10,
     careerGoal: "accounting manager or financial operations analyst",
     personality: "Precise and trustworthy, with strong financial acumen",
     commonResponses: {
+      askingName: "I'm Linda. Thanks for having me!",
       greeting: "I've handled bookkeeping and payroll for 10 years across several small businesses. I'm ready to move into a role where I can do more strategic financial work.",
       analyticalThinking: "I analyze financial statements monthly, spotting trends and anomalies. I once identified a billing error that had been costing the company $2,000 per month for years.",
       resilience: "When COVID hit, I had to transition all our financial processes to remote work in a week. I also managed PPP loans and all the additional reporting requirements.",
@@ -198,11 +214,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "stock-clerk",
+    name: "Kevin",
     currentRole: "Material-Recording and Stock-Keeping Clerk",
     yearsExperience: 6,
     careerGoal: "inventory manager or procurement specialist",
     personality: "Systematic and observant, with strong organizational skills",
     commonResponses: {
+      askingName: "Kevin here. Nice to meet you!",
       greeting: "I've been managing inventory and warehouse operations for 6 years. I want to move into a role where I can work on bigger-picture supply chain decisions.",
       analyticalThinking: "I analyze inventory levels daily, identifying trends and potential stockouts. I developed a reorder point system that reduced our emergency orders by 70%.",
       resilience: "When supply chain disruptions hit, I had to completely rethink our inventory strategy. I built relationships with backup suppliers and implemented a new buffer stock system.",
@@ -223,11 +241,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "transport-attendant",
+    name: "Maria",
     currentRole: "Transportation Attendant",
     yearsExperience: 9,
     careerGoal: "transportation coordinator or customer experience manager",
     personality: "Patient and attentive, with strong safety awareness",
     commonResponses: {
+      askingName: "I'm Maria. Pleasure to meet you!",
       greeting: "I've worked as a transportation attendant for 9 years, mostly on intercity buses. I help passengers, ensure safety, and handle any issues that come up during trips.",
       analyticalThinking: "I observe passenger patterns and have suggested schedule adjustments that improved on-time performance. I also track and report recurring issues to help management make better decisions.",
       resilience: "I've handled everything from medical emergencies to difficult passengers to mechanical breakdowns. Staying calm under pressure and adapting quickly is essential in this job.",
@@ -248,11 +268,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "street-vendor",
+    name: "Chris",
     currentRole: "Door-to-Door Sales Representative",
     yearsExperience: 4,
     careerGoal: "sales manager or business development representative",
     personality: "Persistent and personable, with strong persuasion skills",
     commonResponses: {
+      askingName: "I'm Chris. Thanks for chatting with me!",
       greeting: "I've been in door-to-door sales for 4 years, selling everything from solar panels to home security. I'm ready to take my sales skills to a bigger stage.",
       analyticalThinking: "I analyze my territory constantly - which neighborhoods respond best, what times work, which pitches close. Data drives my strategy.",
       resilience: "I face rejection dozens of times a day. You have to have thick skin in this job. I've learned not to take it personally and keep pushing forward.",
@@ -273,11 +295,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "graphic-designer",
+    name: "Alex",
     currentRole: "Graphic Designer",
     yearsExperience: 5,
     careerGoal: "UX designer or creative director",
     personality: "Creative and collaborative, with strong visual communication skills",
     commonResponses: {
+      askingName: "I'm Alex. Great to connect with you!",
       greeting: "I've been a graphic designer for 5 years, doing everything from branding to marketing materials. I'm interested in moving toward UX design where I can solve more complex problems.",
       analyticalThinking: "Design isn't just about aesthetics - I analyze user needs, brand requirements, and market positioning. Every visual decision should be backed by strategic thinking.",
       resilience: "The creative field is full of rejection and revision. I've learned to separate my ego from my work and see feedback as a path to better solutions.",
@@ -298,11 +322,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "claims-adjuster",
+    name: "Patricia",
     currentRole: "Insurance Claims Adjuster",
     yearsExperience: 8,
     careerGoal: "risk analyst or claims manager",
     personality: "Investigative and fair, with strong analytical skills",
     commonResponses: {
+      askingName: "Patricia. Nice to meet you!",
       greeting: "I've been adjusting insurance claims for 8 years, handling everything from auto accidents to property damage. I'm looking to move into a more strategic risk analysis role.",
       analyticalThinking: "Every claim requires investigation and analysis - reviewing evidence, interviewing parties, calculating damages. I've developed strong skills in synthesizing complex information to reach fair conclusions.",
       resilience: "Claims work means dealing with people at their worst moments. I've handled difficult, sometimes hostile claimants while maintaining professionalism and fairness.",
@@ -323,11 +349,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "legal-official",
+    name: "Robert",
     currentRole: "Court Clerk",
     yearsExperience: 11,
     careerGoal: "court administrator or legal operations specialist",
     personality: "Procedural and impartial, with strong attention to detail",
     commonResponses: {
+      askingName: "I'm Robert. Pleased to meet you!",
       greeting: "I've worked as a court clerk for 11 years, managing case files, supporting judges, and ensuring court procedures run smoothly. I'm interested in court administration.",
       analyticalThinking: "I analyze case files, legal documents, and procedural requirements constantly. Identifying what's needed for each case to proceed correctly requires careful attention.",
       resilience: "Courts deal with people in crisis - custody disputes, criminal cases, civil conflicts. I maintain composure and impartiality regardless of the emotional intensity.",
@@ -348,11 +376,13 @@ export const demoPersonas: DemoPersona[] = [
   },
   {
     id: "legal-secretary",
+    name: "Jennifer",
     currentRole: "Legal Secretary",
     yearsExperience: 9,
     careerGoal: "paralegal or legal operations manager",
     personality: "Meticulous and confidential, with strong organizational skills",
     commonResponses: {
+      askingName: "I'm Jennifer. Lovely to meet you!",
       greeting: "I've been a legal secretary for 9 years at a mid-sized law firm. I handle everything from document preparation to client communication. I'm interested in becoming a paralegal.",
       analyticalThinking: "I review and organize complex legal documents, identifying discrepancies and ensuring accuracy. I've caught errors in contracts that could have caused significant problems.",
       resilience: "Legal work involves tight deadlines and high pressure. I've stayed late many nights to meet filing deadlines and managed multiple urgent projects simultaneously.",
@@ -366,33 +396,35 @@ export const demoPersonas: DemoPersona[] = [
       communication: "I draft correspondence, communicate with courts and opposing counsel, and translate complex legal information for clients. Professional communication is essential.",
       general: [
         "Confidentiality is sacred in legal work. I handle extremely sensitive information and maintain strict discretion.",
-        "Deadlines are absolute. Missing a court deadline can have serious malpractice implications.",
-        "I take pride in making attorneys' jobs easier so they can focus on substantive legal work."
+        "Organization is everything. I manage multiple cases, deadlines, and documents simultaneously.",
+        "I've learned to anticipate what attorneys need and have materials ready before they ask."
       ]
     }
   },
   {
-    id: "telemarketer",
-    currentRole: "Telemarketer",
-    yearsExperience: 2,
-    careerGoal: "customer success representative or sales development representative",
-    personality: "Energetic and resilient, with strong verbal communication",
+    id: "call-center",
+    name: "Michael",
+    currentRole: "Call Center Representative",
+    yearsExperience: 4,
+    careerGoal: "customer success manager or team lead",
+    personality: "Patient and solution-oriented, with strong communication skills",
     commonResponses: {
-      greeting: "I've been in telemarketing for 2 years, making outbound calls for various campaigns. I'm looking to transition to a role with more relationship-building and less cold calling.",
-      analyticalThinking: "I analyze my call data constantly - conversion rates, best calling times, which scripts work. Data helps me continuously improve my performance.",
-      resilience: "I hear 'no' hundreds of times a day. Rejection doesn't faze me anymore. I've developed mental toughness that I think is valuable in any role.",
-      leadership: "I've been asked to mentor new callers and share my techniques. When someone's struggling, I listen to their calls and give constructive feedback.",
-      creativeThinking: "I've developed conversation starters that break through people's defenses. Being genuine and creative helps me stand out from robotic scripts.",
-      customerService: "Even though I'm selling, I focus on understanding needs and providing value. The best calls feel like conversations, not pitches.",
-      technology: "I use CRM systems, auto-dialers, and call recording software. I'm also comfortable with virtual meeting platforms for more complex sales.",
-      learning: "I'm taking courses in customer success and solution selling. I want to move beyond transactional calls to building long-term relationships.",
-      teamwork: "We share successful approaches and support each other through tough campaigns. Competition is healthy, but we're all working toward team goals.",
-      problemSolving: "When a campaign was underperforming, I analyzed the data, identified issues with the target list, and suggested adjustments that improved results significantly.",
-      communication: "My voice is my tool. I've learned to control pace, tone, and energy to connect with different types of people. Listening is just as important as talking.",
+      askingName: "I'm Michael. Thanks for speaking with me!",
+      greeting: "I've worked in a call center for 4 years, handling customer inquiries and complaints. I'm looking to move into a role where I can have deeper relationships with customers.",
+      analyticalThinking: "I analyze call patterns and customer feedback to identify common issues. I've suggested process improvements that reduced repeat calls by 25%.",
+      resilience: "I handle difficult calls every day - angry customers, complex problems, unreasonable demands. I've developed the ability to stay calm and focused no matter what.",
+      leadership: "I mentor new representatives and help with quality coaching. I'm often asked to handle escalated calls because of my ability to de-escalate situations.",
+      creativeThinking: "When our script wasn't addressing a common issue, I developed a new approach that resolved customer concerns faster. It was adopted by the whole team.",
+      customerService: "Customer service is my entire job. I've learned to listen actively, empathize genuinely, and find solutions quickly. Every customer should feel heard and helped.",
+      technology: "I'm proficient in CRM systems, telephony software, and knowledge bases. I can navigate multiple systems quickly while maintaining conversation flow.",
+      learning: "I'm studying customer success methodologies and business communication. I want to understand customer relationships at a strategic level.",
+      teamwork: "We support each other constantly - sharing knowledge, covering during breaks, and collaborating on difficult cases. Team culture makes a huge difference.",
+      problemSolving: "A customer had a billing issue that had bounced between departments for months. I took ownership, coordinated with multiple teams, and finally resolved it permanently.",
+      communication: "I adapt my communication style to each caller - some need facts, some need empathy, some need both. Clear, patient communication is my core skill.",
       general: [
-        "I can think on my feet. When objections come, I respond naturally without losing the conversation flow.",
-        "Numbers motivate me. I set daily goals and track my progress constantly.",
-        "This job taught me not to take things personally. It's a valuable life skill."
+        "I genuinely care about helping people. It's not just a job - I want every customer to have a good experience.",
+        "Patience is essential. Some calls take time, and rushing creates more problems than it solves.",
+        "I track my own metrics and constantly work to improve. Self-awareness drives performance."
       ]
     }
   }
