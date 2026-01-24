@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ADVISOR_SYSTEM_PROMPT, INITIAL_GREETING_PROMPT } from "@/constants/advisorPrompt";
+import type { VoicePersona } from "@/components/VoicePersonaSelector";
 
 interface Message {
   role: "user" | "assistant";
@@ -14,7 +15,7 @@ interface UseRealtimeVoiceReturn {
   isSpeaking: boolean;
   isListening: boolean;
   messages: Message[];
-  startConversation: () => Promise<void>;
+  startConversation: (persona: VoicePersona) => Promise<void>;
   stopConversation: () => void;
 }
 
@@ -106,12 +107,14 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
     [playNextInQueue],
   );
 
-  const startConversation = useCallback(async () => {
+  const startConversation = useCallback(async (persona: VoicePersona = "coral") => {
     setIsConnecting(true);
 
     try {
-      // Get ephemeral token from edge function
-      const { data, error } = await supabase.functions.invoke("realtime-session");
+      // Get ephemeral token from edge function with selected persona
+      const { data, error } = await supabase.functions.invoke("realtime-session", {
+        body: { voice: persona }
+      });
 
       if (error || !data?.client_secret?.value) {
         throw new Error(error?.message || "Failed to get session token");
@@ -131,14 +134,14 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
       ws.onopen = async () => {
         console.log("WebSocket connected");
 
-        // Send session configuration
+        // Send session configuration with selected persona
         ws.send(
           JSON.stringify({
             type: "session.update",
             session: {
               modalities: ["text", "audio"],
               instructions: ADVISOR_SYSTEM_PROMPT,
-              voice: "coral",
+              voice: persona,
               input_audio_format: "pcm16",
               output_audio_format: "pcm16",
               input_audio_transcription: {

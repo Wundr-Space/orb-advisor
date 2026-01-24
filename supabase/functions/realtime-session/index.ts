@@ -17,6 +17,17 @@ serve(async (req) => {
       throw new Error("OPENAI_API_KEY is not configured");
     }
 
+    // Get the selected voice persona from request body
+    let voice = "coral";
+    try {
+      const body = await req.json();
+      if (body.voice) {
+        voice = body.voice;
+      }
+    } catch {
+      // No body or invalid JSON, use default
+    }
+
     // Create an ephemeral token for the Realtime API session
     const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
       method: "POST",
@@ -26,7 +37,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "gpt-4o-realtime-preview-2024-12-17",
-        voice: "coral",
+        voice: voice,
       }),
     });
 
