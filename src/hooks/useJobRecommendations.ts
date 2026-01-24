@@ -13,6 +13,40 @@ export interface JobRecommendation extends Job {
   matchScore: number;
 }
 
+// Tech sector job title keywords
+const TECH_TITLE_KEYWORDS = [
+  "developer", "engineer", "data", "software", "devops", "cloud",
+  "machine learning", "cybersecurity", "network", "ux", "ui",
+  "full stack", "frontend", "backend", "architect", "analyst",
+  "product manager", "scrum", "agile", "tech", "digital", "it ",
+  "security", "intelligence", "scientist", "programming"
+];
+
+// Tech sector skills
+const TECH_SKILLS = [
+  "programming", "ai and big data", "networks and cybersecurity",
+  "technological literacy", "design and user experience", "systems thinking"
+];
+
+/**
+ * Check if a job is in the tech sector based on title and skills
+ */
+const isTechJob = (job: Job): boolean => {
+  const titleLower = job.title.toLowerCase();
+  
+  // Check if title contains tech keywords
+  const hasTechTitle = TECH_TITLE_KEYWORDS.some(keyword => 
+    titleLower.includes(keyword)
+  );
+  
+  // Check if job requires tech skills
+  const hasTechSkills = job.skills.some(skill =>
+    TECH_SKILLS.includes(skill.toLowerCase())
+  );
+  
+  return hasTechTitle || hasTechSkills;
+};
+
 /**
  * Detects when the AI has provided job recommendations and returns matching jobs
  * based on the user's assessed skills (score >= 3).
@@ -89,9 +123,9 @@ export const useJobRecommendations = (
       };
     });
 
-    // Filter to jobs with at least one match, sort by score, return top 5
+    // Filter to tech sector jobs with at least one match, sort by score, return top 5
     return scoredJobs
-      .filter((job) => job.matchedSkills.length > 0)
+      .filter((job) => job.matchedSkills.length > 0 && isTechJob(job))
       .sort((a, b) => {
         // First by number of matched skills
         if (b.matchedSkills.length !== a.matchedSkills.length) {
