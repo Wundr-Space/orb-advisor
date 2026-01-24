@@ -12,7 +12,8 @@ import { type VoicePersona } from "@/components/VoicePersonaSelector";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useSkillScores } from "@/hooks/useSkillScores";
-import { Sparkles, ArrowLeft, Bug, Settings } from "lucide-react";
+import { ArrowLeft, Bug, Settings } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -158,12 +159,11 @@ const Index = () => {
           className="flex flex-col items-center mb-12"
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-full bg-accent/30">
-              <Sparkles className="w-6 h-6 text-accent-foreground" />
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-              {userType ? headerContent.title : "Career Hub"}
-            </h1>
+            <img 
+              src={logo} 
+              alt="Get In - AI Career Advice" 
+              className="h-16 md:h-20 w-auto"
+            />
           </div>
           <p className="text-muted-foreground text-center max-w-md text-lg">
             {userType ? headerContent.subtitle : "Find your next opportunity or the perfect candidate"}
