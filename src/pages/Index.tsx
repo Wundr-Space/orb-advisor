@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlowingOrb } from "@/components/GlowingOrb";
 import { StartButton } from "@/components/StartButton";
@@ -30,7 +30,15 @@ const Index = () => {
     isLoading: isTextLoading,
     sendMessage,
     clearMessages,
+    initiateConversation,
   } = useTextChat();
+
+  // Auto-initiate text chat when mode is selected
+  useEffect(() => {
+    if (chatMode === "text" && textMessages.length === 0) {
+      initiateConversation();
+    }
+  }, [chatMode, textMessages.length, initiateConversation]);
 
   const handleBack = () => {
     if (isConnected) {
