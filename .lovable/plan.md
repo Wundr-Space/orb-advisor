@@ -2,132 +2,208 @@
 
 ## Summary
 
-Add a recruiter demo mode that simulates a hiring manager describing a job they need to fill. The demo will randomly select a tech job from `jobsData.ts` and generate responses as if the recruiter is hiring for that position.
+Add user authentication with registration and login before users can access the main journey. Registration will require a valid invite code (`QT6rrR1`) to complete signup.
 
 ## Current State
 
-The existing demo mode in `useDemoMode.ts`:
-- Uses `DemoPersona` from `demoPersonas.ts` (job seeker profiles)
-- Detects question types (name, greeting, skills, etc.)
-- Generates job-seeker-style responses
-- Does NOT accept `userType` - only works for job seekers
+- No authentication exists in the app
+- Users go directly to the Index page with the user type selector
+- Supabase client is already configured
+- No database tables exist yet
 
 ## New Flow
 
 ```text
-Job Seeker Demo:
-  - Selects random persona from demoPersonas.ts
-  - Responds as someone looking for a job
-  - Answers questions about their skills and experience
+Unauthenticated User:
+  /auth → Login/Register form
+    - Login: Email + Password
+    - Register: Email + Password + Invite Code validation
+    - On success → redirect to /
 
-Recruiter Demo (NEW):
-  - Selects random tech job from jobsData.ts
-  - Responds as a hiring manager
-  - Answers questions about the role they're hiring for
-  - Describes required skills, salary, team dynamics
+Authenticated User:
+  / → Index page (existing journey)
+  - Logout option available
 ```
 
 ## Technical Implementation
 
-### 1. Create Recruiter Demo Persona Data
-**New File:** `src/data/recruiterDemoPersonas.ts`
+### 1. Database Setup
 
-Create a structure for recruiter personas that includes:
-- Recruiter name and company
-- The job they're hiring for (from `jobsData.ts`)
-- Pre-built responses for common recruiter questions:
-  - `askingName`: Introduce themselves
-  - `roleDescription`: What position they're hiring for
-  - `skills`: Required skills for the role
-  - `experience`: Experience level needed
-  - `salary`: Compensation details
-  - `teamCulture`: Team dynamics and company culture
-  - `timeline`: Hiring urgency
-  - `challenges`: Current challenges in the role
-  - `general`: Fallback responses
+**Create invite_codes table** to store valid invite codes:
 
-Include a helper function `getRandomRecruiterPersona()` that:
-1. Filters `JOBS_DATA` to only tech jobs (using `isTechJob` logic)
-2. Randomly selects one job
-3. Returns a generated recruiter persona with that job's details
+```sql
+CREATE TABLE public.invite_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT NOT NULL UNIQUE,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  uses_remaining INTEGER DEFAULT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
-### 2. Update Demo Mode Hook
-**File:** `src/hooks/useDemoMode.ts`
+-- Enable RLS
+ALTER TABLE public.invite_codes ENABLE ROW LEVEL SECURITY;
 
-**Changes:**
-- Add `userType` parameter to `startDemo(userType: UserType)`
-- Add new type `RecruiterDemoPersona` for the recruiter persona structure
-- Add new `RecruiterQuestionType` for detecting recruiter-specific questions
-- Add `detectRecruiterQuestionType()` function to identify:
-  - Name requests
-  - Role/position questions
-  - Skills requirements
-  - Experience level
-  - Salary/compensation
-  - Team/culture questions
-  - Timeline/urgency
-  - General questions
-- Update `generateResponse()` to check the user type and call the appropriate response generator
-- Update toast notifications to show different info for recruiters (job title + company instead of career goal)
+-- Allow anyone to read active codes (for validation)
+CREATE POLICY "Anyone can validate invite codes"
+  ON public.invite_codes
+  FOR SELECT
+  USING (is_active = true);
 
-### 3. Update Text Chat Panel
-**File:** `src/components/TextChatPanel.tsx`
+-- Insert the invite code
+INSERT INTO public.invite_codes (code) VALUES ('QT6rrR1');
+```
 
-**Changes:**
-- Pass `userType` to `startDemo()` function call
-- The demo button click handler already exists; just update the `startDemo` call
+**Configure auth** to auto-confirm email signups (no email verification needed).
 
-### 4. Update Return Type Interface
-**File:** `src/hooks/useDemoMode.ts`
+### 2. Create Auth Page
 
-Update `UseDemoModeReturn` interface:
-- Keep `currentPersona: DemoPersona | null` for job seekers
-- Add `currentRecruiterPersona: RecruiterDemoPersona | null` for recruiters
-- Update `startDemo` signature to accept `userType`
+**New File:** `src/pages/Auth.tsx`
+
+A single page with tabs for Login and Register:
+
+**Login Tab:**
+- Email input field
+- Password input field
+- "Log In" button
+- Link to switch to Register tab
+
+**Register Tab:**
+- Email input field
+- Password input field
+- Confirm password input field
+- Invite code input field
+- "Create Account" button
+- Link to switch to Login tab
+
+**Validation Flow:**
+1. Validate invite code against `invite_codes` table before signup
+2. If invalid code, show error and prevent registration
+3. If valid code, proceed with Supabase auth signup
+
+**Styling:**
+- Use existing Card, Input, Button, Tabs, Label components
+- Include the logo at top
+- Show decorative background shapes for consistency
+
+### 3. Create Auth Hook
+
+**New File:** `src/hooks/useAuth.ts`
+
+Hook to manage authentication state:
+
+```typescript
+export function useAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // Then check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signIn = async (email: string, password: string) => { ... };
+  const signUp = async (email: string, password: string) => { ... };
+  const signOut = async () => { ... };
+
+  return { user, loading, signIn, signUp, signOut };
+}
+```
+
+### 4. Create Protected Route Component
+
+**New File:** `src/components/ProtectedRoute.tsx`
+
+Wrapper component to protect routes:
+
+```typescript
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  return user ? <>{children}</> : null;
+}
+```
+
+### 5. Update App Router
+
+**Modify:** `src/App.tsx`
+
+Add auth route and wrap Index with ProtectedRoute:
+
+```typescript
+<Routes>
+  <Route path="/auth" element={<Auth />} />
+  <Route 
+    path="/" 
+    element={
+      <ProtectedRoute>
+        <Index />
+      </ProtectedRoute>
+    } 
+  />
+  <Route path="*" element={<NotFound />} />
+</Routes>
+```
+
+### 6. Add Logout Button
+
+**Modify:** `src/pages/Index.tsx`
+
+Add a logout button in the top-right corner (alongside the Debug/Voice toggles):
+
+- Show user email or a user icon
+- Dropdown or button to sign out
+- On sign out, redirect to /auth
 
 ## File Changes Summary
 
 | File | Action |
 |------|--------|
-| `src/data/recruiterDemoPersonas.ts` | Create |
-| `src/hooks/useDemoMode.ts` | Modify |
-| `src/components/TextChatPanel.tsx` | Modify (pass userType to startDemo) |
+| Database migration | Create `invite_codes` table |
+| Auth config | Enable auto-confirm signups |
+| `src/pages/Auth.tsx` | Create |
+| `src/hooks/useAuth.ts` | Create |
+| `src/components/ProtectedRoute.tsx` | Create |
+| `src/App.tsx` | Modify - add routes and protection |
+| `src/pages/Index.tsx` | Modify - add logout button |
 
-## Technical Details
+## Invite Code Validation Logic
 
-### Recruiter Question Type Detection
+Registration flow:
+1. User fills in email, password, confirm password, and invite code
+2. Before calling `supabase.auth.signUp()`:
+   - Query `invite_codes` table: `SELECT * FROM invite_codes WHERE code = $code AND is_active = true`
+   - If no matching row found, show error: "Invalid invite code"
+   - If found, proceed with signup
+3. On successful signup, user is logged in and redirected to home
 
-The `detectRecruiterQuestionType` function will look for:
+## Security Considerations
 
-- **askingName**: "your name", "who am i speaking", "may i ask your name"
-- **roleDescription**: "position", "role", "job", "hiring for", "what are you looking for"
-- **skills**: "skills", "qualifications", "requirements", "looking for", "need", "must have"
-- **experience**: "experience", "years", "senior", "junior", "level"
-- **salary**: "salary", "compensation", "pay", "benefits", "package"
-- **teamCulture**: "team", "culture", "environment", "work with", "colleagues"
-- **timeline**: "when", "urgency", "start date", "timeline", "fill this"
-- **challenges**: "challenges", "problems", "difficult", "issues", "why this role"
-
-### Recruiter Response Generation
-
-Responses will be dynamically generated based on the selected job's data:
-
-```typescript
-// Example for a "DevOps Engineer" role at "Comparethemarket" in Cardiff
-{
-  askingName: "I'm Alex, the Head of Engineering at Comparethemarket.",
-  roleDescription: "We're looking for a DevOps Engineer to join our Cardiff team. It's a key role in our infrastructure team.",
-  skills: "We really need someone strong in Programming and Networks & Cybersecurity. Systems thinking is also important for understanding our architecture.",
-  experience: "We're looking for someone mid-level, probably 3-5 years of experience in a similar role.",
-  salary: "The salary is around £58,000, competitive for the Cardiff market.",
-  teamCulture: "We're a collaborative team that values continuous improvement. We work in agile sprints and everyone's input matters.",
-  timeline: "We'd like to have someone start within the next 2-3 months if possible.",
-  challenges: "Our main challenge is scaling our CI/CD pipelines as we grow. We need someone who can help us modernize our infrastructure.",
-  general: ["This role is really pivotal for us.", "I'm excited about what this person could bring to the team."]
-}
-```
-
-### Demo Completion Detection for Recruiters
-
-The demo will end when the AI outputs an "Ideal Candidate Profile" or "Matching Candidates" signal (matching the recruiter system prompt's expected output format).
+- Invite codes are validated server-side via RLS policy
+- Passwords must be at least 6 characters (Supabase default)
+- Auth state persisted in localStorage (already configured)
+- Protected routes redirect unauthenticated users to /auth
 
