@@ -57,6 +57,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        orb: {
+          core: "hsl(var(--orb-core))",
+          glow: "hsl(var(--orb-glow))",
+          outer: "hsl(var(--orb-outer))",
+          pulse: "hsl(var(--orb-pulse))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +71,48 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "orb-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.05)", opacity: "0.9" },
+        },
+        "orb-glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 30px hsl(185 100% 50% / 0.4), 0 0 60px hsl(185 100% 50% / 0.2), 0 0 100px hsl(200 100% 45% / 0.1)",
           },
-          to: {
-            height: "0",
+          "50%": {
+            boxShadow: "0 0 50px hsl(185 100% 50% / 0.6), 0 0 100px hsl(185 100% 50% / 0.3), 0 0 150px hsl(200 100% 45% / 0.2)",
           },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "speaking-pulse": {
+          "0%, 100%": { transform: "scale(1)" },
+          "25%": { transform: "scale(1.15)" },
+          "50%": { transform: "scale(1.05)" },
+          "75%": { transform: "scale(1.12)" },
+        },
+        "ring-rotate": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "orb-pulse": "orb-pulse 3s ease-in-out infinite",
+        "orb-glow": "orb-glow 3s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
+        "speaking-pulse": "speaking-pulse 0.8s ease-in-out infinite",
+        "ring-rotate": "ring-rotate 20s linear infinite",
       },
     },
   },
