@@ -97,111 +97,84 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
         initial="idle"
       >
         <svg
-          width="180"
-          height="160"
-          viewBox="0 0 180 160"
+          width="220"
+          height="180"
+          viewBox="0 0 220 180"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Shadow */}
           <ellipse
-            cx="90"
-            cy="150"
-            rx="50"
+            cx="110"
+            cy="170"
+            rx="55"
             ry="8"
             className="fill-foreground/10"
           />
 
-          {/* Blob body - organic rounded shape */}
+          {/* Blob body - organic mustard yellow shape */}
           <path
-            d="M30 90 
-               C30 50, 50 25, 90 25 
-               C130 25, 150 50, 150 90 
-               C150 120, 135 140, 90 140 
-               C45 140, 30 120, 30 90Z"
-            className="fill-primary"
+            d="M25 100 
+               C20 55, 50 20, 110 25 
+               C170 30, 195 60, 190 105 
+               C185 145, 155 165, 110 160 
+               C60 155, 30 140, 25 100Z"
+            fill="#E8A838"
           />
 
-          {/* Blob highlight */}
+          {/* Glasses - half-frame style with straight top bar */}
+          {/* Main top bar extending beyond blob */}
           <path
-            d="M45 70 
-               C45 50, 60 35, 85 35 
-               C100 35, 110 45, 110 55 
-               C110 65, 95 70, 75 70 
-               C55 70, 45 80, 45 70Z"
-            className="fill-primary-foreground/20"
-          />
-
-          {/* Spectacles */}
-          {/* Left lens frame */}
-          <circle
-            cx="65"
-            cy="75"
-            r="22"
-            strokeWidth="4"
-            className="fill-none stroke-foreground"
-          />
-          {/* Right lens frame */}
-          <circle
-            cx="115"
-            cy="75"
-            r="22"
-            strokeWidth="4"
-            className="fill-none stroke-foreground"
-          />
-          {/* Bridge */}
-          <path
-            d="M87 75 L93 75"
-            strokeWidth="4"
+            d="M15 72 L205 72"
+            strokeWidth="5"
             strokeLinecap="round"
             className="stroke-foreground"
           />
-          {/* Left arm */}
+          
+          {/* Left lens - trapezoid half-frame */}
           <path
-            d="M43 75 L30 70"
-            strokeWidth="3"
-            strokeLinecap="round"
+            d="M45 72 L45 95 C45 105, 55 110, 75 110 C95 110, 105 105, 105 95 L105 72"
+            strokeWidth="4"
+            fill="none"
             className="stroke-foreground"
           />
-          {/* Right arm */}
+          
+          {/* Right lens - trapezoid half-frame */}
           <path
-            d="M137 75 L150 70"
-            strokeWidth="3"
-            strokeLinecap="round"
+            d="M115 72 L115 95 C115 105, 125 110, 145 110 C165 110, 175 105, 175 95 L175 72"
+            strokeWidth="4"
+            fill="none"
             className="stroke-foreground"
           />
 
           {/* Eyes (inside glasses) */}
           <motion.g variants={eyeVariants} animate={getAnimationVariant()}>
-            {/* Left eye */}
-            <circle cx="65" cy="75" r="6" className="fill-foreground" />
-            {/* Right eye */}
-            <circle cx="115" cy="75" r="6" className="fill-foreground" />
-            {/* Eye highlights */}
-            <circle cx="67" cy="73" r="2" className="fill-primary-foreground" />
-            <circle cx="117" cy="73" r="2" className="fill-primary-foreground" />
+            {/* Left eye - small square-ish */}
+            <rect x="70" y="82" width="10" height="12" rx="2" className="fill-foreground" />
+            {/* Right eye - small square-ish */}
+            <rect x="140" y="82" width="10" height="12" rx="2" className="fill-foreground" />
           </motion.g>
 
           {/* South Park style mouth - only visible when speaking */}
           <motion.g
             variants={mouthVariants}
             animate={getAnimationVariant()}
-            style={{ originY: 0, transformOrigin: "90px 108px" }}
+            style={{ originY: 0, transformOrigin: "110px 130px" }}
           >
             {/* Mouth opening - simple oval that flaps */}
             <ellipse
-              cx="90"
-              cy="115"
-              rx="15"
-              ry="10"
+              cx="110"
+              cy="135"
+              rx="18"
+              ry="12"
               className="fill-foreground"
             />
             {/* Inside of mouth */}
             <ellipse
-              cx="90"
-              cy="117"
-              rx="10"
-              ry="6"
+              cx="110"
+              cy="137"
+              rx="12"
+              ry="7"
               className="fill-destructive"
             />
           </motion.g>
