@@ -29,13 +29,52 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  
+  // Audio queue for proper sequential playback
+  const audioQueueRef = useRef<Float32Array[]>([]);
+  const isPlayingRef = useRef(false);
+  const nextPlayTimeRef = useRef(0);
 
-  const playAudio = useCallback(async (base64Audio: string) => {
+  const playNextInQueue = useCallback(() => {
+    if (!audioContextRef.current || audioQueueRef.current.length === 0) {
+      isPlayingRef.current = false;
+      setIsSpeaking(false);
+      return;
+    }
+
+    isPlayingRef.current = true;
+    setIsSpeaking(true);
+
+    const float32Array = audioQueueRef.current.shift()!;
+    const audioBuffer = audioContextRef.current.createBuffer(1, float32Array.length, 24000);
+    audioBuffer.getChannelData(0).set(float32Array);
+
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContextRef.current.destination);
+    
+    // Schedule this chunk to play after the previous one
+    const currentTime = audioContextRef.current.currentTime;
+    const startTime = Math.max(currentTime, nextPlayTimeRef.current);
+    nextPlayTimeRef.current = startTime + audioBuffer.duration;
+    
+    source.onended = () => {
+      if (audioQueueRef.current.length > 0) {
+        playNextInQueue();
+      } else {
+        isPlayingRef.current = false;
+        setIsSpeaking(false);
+      }
+    };
+    
+    source.start(startTime);
+  }, []);
+
+  const playAudio = useCallback((base64Audio: string) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext({ sampleRate: 24000 });
+      nextPlayTimeRef.current = 0;
     }
-    
-    setIsSpeaking(true);
     
     try {
       const binaryString = atob(base64Audio);
@@ -51,19 +90,17 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
         float32Array[i] = int16Array[i] / 32768;
       }
 
-      const audioBuffer = audioContextRef.current.createBuffer(1, float32Array.length, 24000);
-      audioBuffer.getChannelData(0).set(float32Array);
-
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContextRef.current.destination);
-      source.onended = () => setIsSpeaking(false);
-      source.start();
+      // Add to queue
+      audioQueueRef.current.push(float32Array);
+      
+      // Start playing if not already
+      if (!isPlayingRef.current) {
+        playNextInQueue();
+      }
     } catch (error) {
-      console.error("Error playing audio:", error);
-      setIsSpeaking(false);
+      console.error("Error queuing audio:", error);
     }
-  }, []);
+  }, [playNextInQueue]);
 
   const startConversation = useCallback(async () => {
     setIsConnecting(true);
@@ -264,6 +301,11 @@ Be warm, encouraging, and practical in your advice. Ask clarifying questions whe
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
+
+    // Clear audio queue
+    audioQueueRef.current = [];
+    isPlayingRef.current = false;
+    nextPlayTimeRef.current = 0;
 
     setIsConnected(false);
     setIsListening(false);
