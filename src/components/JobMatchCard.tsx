@@ -44,8 +44,8 @@ export function JobMatchCard({ job, userSkills, matchScore, matchedSkills }: Job
 
       {/* Blob Chart */}
       <div 
-        className="rounded-xl overflow-hidden bg-muted/30 flex-1 min-h-0"
-        style={{ minHeight: 160 }}
+        className="rounded-xl overflow-hidden bg-muted/30 relative"
+        style={{ aspectRatio: '4/3', minHeight: 120 }}
       >
         <ProfileBlobChart skillMatches={skillMatches} matchPercentage={matchScore} />
       </div>
