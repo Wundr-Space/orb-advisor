@@ -106,11 +106,19 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Subtle decorative shapes */}
-      <div className="absolute top-20 left-10 w-20 h-20 rounded-full bg-secondary/30" />
-      <div className="absolute top-40 right-20 w-12 h-12 rounded-full bg-accent/30" />
-      <div className="absolute bottom-32 left-1/4 w-16 h-16 rounded-full bg-primary/20" />
-      <div className="absolute bottom-20 right-1/3 w-10 h-10 rounded-full bg-secondary/40" />
+      {/* Subtle decorative shapes - angular and asymmetric */}
+      <svg className="absolute top-20 left-10 w-24 h-20" viewBox="0 0 96 80">
+        <polygon points="10,35 45,5 85,20 75,65 35,75 5,55" className="fill-secondary/30" />
+      </svg>
+      <svg className="absolute top-40 right-20 w-16 h-14" viewBox="0 0 64 56">
+        <polygon points="8,25 30,4 58,18 52,48 22,52 4,38" className="fill-accent/30" />
+      </svg>
+      <svg className="absolute bottom-32 left-1/4 w-20 h-18" viewBox="0 0 80 72">
+        <polygon points="12,30 42,6 72,22 65,58 28,68 6,48" className="fill-primary/20" />
+      </svg>
+      <svg className="absolute bottom-20 right-1/3 w-14 h-12" viewBox="0 0 56 48">
+        <polygon points="6,22 28,4 50,16 45,40 18,46 4,32" className="fill-secondary/40" />
+      </svg>
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
