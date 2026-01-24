@@ -39,6 +39,8 @@ export const TextChatPanel = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const { isDemoMode, startDemo, stopDemo, generateResponse } = useDemoMode();
+  
+  const handleStartDemo = () => startDemo(userType);
   const recommendedJobs = useJobRecommendations(messages, skills);
   const recommendedApplicants = useApplicantRecommendations(messages);
   
@@ -158,7 +160,7 @@ export const TextChatPanel = ({
           <Button
             variant={isDemoMode ? "destructive" : "outline"}
             size="sm"
-            onClick={isDemoMode ? stopDemo : startDemo}
+            onClick={isDemoMode ? stopDemo : handleStartDemo}
             className="rounded-full text-xs gap-1.5"
             disabled={isLoading}
           >
