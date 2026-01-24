@@ -16,51 +16,49 @@ export const ChatModeSelector = ({ onSelectMode }: ChatModeSelectorProps) => {
       transition={{ delay: 0.3 }}
       className="flex flex-col sm:flex-row gap-4"
     >
-      <Button
-        size="lg"
-        onClick={() => onSelectMode("voice")}
-        className="
-          relative px-8 py-6 text-lg font-medium tracking-wide
-          transition-all duration-300 ease-out
-          bg-primary/20 hover:bg-primary/30 text-primary border-primary/30
-          border backdrop-blur-sm
-          shadow-[0_0_20px_hsl(185_100%_50%/0.2)]
-          hover:shadow-[0_0_30px_hsl(185_100%_50%/0.3)]
-        "
+      <motion.div
+        whileHover={{ scale: 1.05, y: -4 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
-        <span className="flex items-center gap-3">
-          <Mic className="w-5 h-5" />
-          Speak to an Advisor
-        </span>
-        <motion.div
-          className="absolute inset-0 rounded-md bg-primary/10"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      </Button>
+        <Button
+          size="lg"
+          onClick={() => onSelectMode("voice")}
+          className="
+            px-8 py-6 text-lg font-bold tracking-wide
+            bg-primary hover:bg-primary/90 text-primary-foreground
+            rounded-full shadow-lg
+            transition-colors duration-200
+          "
+        >
+          <span className="flex items-center gap-3">
+            <Mic className="w-5 h-5" />
+            Speak to Advisor
+          </span>
+        </Button>
+      </motion.div>
 
-      <Button
-        size="lg"
-        onClick={() => onSelectMode("text")}
-        className="
-          relative px-8 py-6 text-lg font-medium tracking-wide
-          transition-all duration-300 ease-out
-          bg-accent/20 hover:bg-accent/30 text-accent border-accent/30
-          border backdrop-blur-sm
-          shadow-[0_0_20px_hsl(200_100%_60%/0.2)]
-          hover:shadow-[0_0_30px_hsl(200_100%_60%/0.3)]
-        "
+      <motion.div
+        whileHover={{ scale: 1.05, y: -4 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
-        <span className="flex items-center gap-3">
-          <MessageSquare className="w-5 h-5" />
-          Chat to an Advisor
-        </span>
-        <motion.div
-          className="absolute inset-0 rounded-md bg-accent/10"
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-        />
-      </Button>
+        <Button
+          size="lg"
+          onClick={() => onSelectMode("text")}
+          className="
+            px-8 py-6 text-lg font-bold tracking-wide
+            bg-secondary hover:bg-secondary/90 text-secondary-foreground
+            rounded-full shadow-lg
+            transition-colors duration-200
+          "
+        >
+          <span className="flex items-center gap-3">
+            <MessageSquare className="w-5 h-5" />
+            Chat to Advisor
+          </span>
+        </Button>
+      </motion.div>
     </motion.div>
   );
 };

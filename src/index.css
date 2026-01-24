@@ -2,89 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Futuristic AI Career Advisor Design System */
+/* Pikuniku-Inspired Friendly Design System */
 
 @layer base {
   :root {
-    /* Deep space dark theme */
-    --background: 220 20% 4%;
-    --foreground: 200 20% 95%;
+    /* Soft cream/beige backgrounds */
+    --background: 40 33% 94%;
+    --foreground: 0 0% 24%;
 
-    --card: 220 25% 8%;
-    --card-foreground: 200 20% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 24%;
 
-    --popover: 220 25% 10%;
-    --popover-foreground: 200 20% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 24%;
 
-    /* Electric cyan as primary */
-    --primary: 185 100% 50%;
-    --primary-foreground: 220 20% 4%;
+    /* Coral red as primary (blob color) */
+    --primary: 4 77% 62%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 30% 15%;
-    --secondary-foreground: 200 20% 90%;
+    /* Soft sage green */
+    --secondary: 90 35% 65%;
+    --secondary-foreground: 0 0% 24%;
 
-    --muted: 220 20% 12%;
-    --muted-foreground: 200 15% 55%;
+    --muted: 40 20% 88%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 200 100% 60%;
-    --accent-foreground: 220 20% 4%;
+    /* Sunny yellow accent */
+    --accent: 43 91% 61%;
+    --accent-foreground: 0 0% 24%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 30% 18%;
-    --input: 220 25% 12%;
-    --ring: 185 100% 50%;
+    --border: 40 20% 82%;
+    --input: 40 20% 88%;
+    --ring: 4 77% 62%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Glow colors for the orb */
-    --orb-core: 185 100% 60%;
-    --orb-glow: 185 100% 50%;
-    --orb-outer: 200 100% 45%;
-    --orb-pulse: 185 100% 70%;
+    /* Blob character colors */
+    --blob-body: 4 77% 62%;
+    --blob-highlight: 4 77% 72%;
+    --blob-shadow: 4 77% 52%;
 
-    /* Grid pattern color */
-    --grid: 220 40% 15%;
-
-    --sidebar-background: 220 25% 6%;
-    --sidebar-foreground: 200 20% 90%;
-    --sidebar-primary: 185 100% 50%;
-    --sidebar-primary-foreground: 220 20% 4%;
-    --sidebar-accent: 220 30% 12%;
-    --sidebar-accent-foreground: 200 20% 90%;
-    --sidebar-border: 220 30% 15%;
-    --sidebar-ring: 185 100% 50%;
+    --sidebar-background: 40 33% 92%;
+    --sidebar-foreground: 0 0% 24%;
+    --sidebar-primary: 4 77% 62%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 90 35% 65%;
+    --sidebar-accent-foreground: 0 0% 24%;
+    --sidebar-border: 40 20% 82%;
+    --sidebar-ring: 4 77% 62%;
   }
 
   .dark {
-    --background: 220 20% 4%;
-    --foreground: 200 20% 95%;
-    --card: 220 25% 8%;
-    --card-foreground: 200 20% 95%;
-    --popover: 220 25% 10%;
-    --popover-foreground: 200 20% 95%;
-    --primary: 185 100% 50%;
-    --primary-foreground: 220 20% 4%;
-    --secondary: 220 30% 15%;
-    --secondary-foreground: 200 20% 90%;
-    --muted: 220 20% 12%;
-    --muted-foreground: 200 15% 55%;
-    --accent: 200 100% 60%;
-    --accent-foreground: 220 20% 4%;
+    /* Keep same friendly theme in dark mode */
+    --background: 40 33% 94%;
+    --foreground: 0 0% 24%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 24%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 24%;
+    --primary: 4 77% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 90 35% 65%;
+    --secondary-foreground: 0 0% 24%;
+    --muted: 40 20% 88%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 43 91% 61%;
+    --accent-foreground: 0 0% 24%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 30% 18%;
-    --input: 220 25% 12%;
-    --ring: 185 100% 50%;
-    --sidebar-background: 220 25% 6%;
-    --sidebar-foreground: 200 20% 90%;
-    --sidebar-primary: 185 100% 50%;
-    --sidebar-primary-foreground: 220 20% 4%;
-    --sidebar-accent: 220 30% 12%;
-    --sidebar-accent-foreground: 200 20% 90%;
-    --sidebar-border: 220 30% 15%;
-    --sidebar-ring: 185 100% 50%;
+    --border: 40 20% 82%;
+    --input: 40 20% 88%;
+    --ring: 4 77% 62%;
+    --sidebar-background: 40 33% 92%;
+    --sidebar-foreground: 0 0% 24%;
+    --sidebar-primary: 4 77% 62%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 90 35% 65%;
+    --sidebar-accent-foreground: 0 0% 24%;
+    --sidebar-border: 40 20% 82%;
+    --sidebar-ring: 4 77% 62%;
   }
 }
 
@@ -95,93 +94,70 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Nunito', 'Comic Sans MS', system-ui, sans-serif;
   }
 }
 
-/* Custom animations for the orb */
-@keyframes orb-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-}
-
-@keyframes orb-glow {
-  0%, 100% {
-    box-shadow: 
-      0 0 30px hsl(185 100% 50% / 0.4),
-      0 0 60px hsl(185 100% 50% / 0.2),
-      0 0 100px hsl(200 100% 45% / 0.1);
-  }
-  50% {
-    box-shadow: 
-      0 0 50px hsl(185 100% 50% / 0.6),
-      0 0 100px hsl(185 100% 50% / 0.3),
-      0 0 150px hsl(200 100% 45% / 0.2);
-  }
-}
-
-@keyframes orb-inner-glow {
-  0%, 100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes float {
+/* Friendly blob animations */
+@keyframes blob-bob {
   0%, 100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
 }
 
-@keyframes speaking-pulse {
+@keyframes blob-speak {
   0%, 100% {
-    transform: scale(1);
+    transform: scaleX(1) scaleY(1);
   }
   25% {
-    transform: scale(1.15);
+    transform: scaleX(1.05) scaleY(0.95);
   }
   50% {
-    transform: scale(1.05);
+    transform: scaleX(0.95) scaleY(1.05);
   }
   75% {
-    transform: scale(1.12);
+    transform: scaleX(1.03) scaleY(0.97);
   }
 }
 
-@keyframes ring-rotate {
-  from {
+@keyframes blob-listen {
+  0%, 100% {
     transform: rotate(0deg);
   }
-  to {
-    transform: rotate(360deg);
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
   }
 }
 
-@keyframes grid-pulse {
+@keyframes button-bounce {
   0%, 100% {
-    opacity: 0.03;
+    transform: translateY(0);
   }
   50% {
-    opacity: 0.06;
+    transform: translateY(-4px);
   }
 }
 
-/* Grid background pattern */
-.bg-grid-pattern {
-  background-image: 
-    linear-gradient(hsl(var(--grid)) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--grid)) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: grid-pulse 4s ease-in-out infinite;
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+@keyframes blink {
+  0%, 90%, 100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
 }
