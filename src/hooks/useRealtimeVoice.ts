@@ -147,7 +147,7 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
 - Professional networking guidance
 
 Be warm, encouraging, and practical in your advice. Ask clarifying questions when needed to provide more personalized guidance. Keep responses conversational and focused.`,
-              voice: "echo",
+              voice: "shimmer",
               input_audio_format: "pcm16",
               output_audio_format: "pcm16",
               input_audio_transcription: {
