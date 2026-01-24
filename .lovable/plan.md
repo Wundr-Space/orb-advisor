@@ -2,188 +2,132 @@
 
 ## Summary
 
-Add a two-step onboarding flow where users first select their journey type (Job Seeker or Recruiter), then select their communication mode (Voice or Text). Each journey has different AI prompts, and the Recruiter journey ends with mock applicant cards instead of job recommendations.
+Add a recruiter demo mode that simulates a hiring manager describing a job they need to fill. The demo will randomly select a tech job from `jobsData.ts` and generate responses as if the recruiter is hiring for that position.
 
-## Current Flow
-```text
-Home Screen → Select Mode (Voice/Text) → Chat → Job Cards
-```
+## Current State
+
+The existing demo mode in `useDemoMode.ts`:
+- Uses `DemoPersona` from `demoPersonas.ts` (job seeker profiles)
+- Detects question types (name, greeting, skills, etc.)
+- Generates job-seeker-style responses
+- Does NOT accept `userType` - only works for job seekers
 
 ## New Flow
+
 ```text
-Home Screen → Select Journey (Job Seeker/Recruiter) → Select Mode (Voice/Text) → Chat → Results
-                     ↓                                                                    ↓
-              Job Seeker: Job Cards                                           Recruiter: Applicant Cards
+Job Seeker Demo:
+  - Selects random persona from demoPersonas.ts
+  - Responds as someone looking for a job
+  - Answers questions about their skills and experience
+
+Recruiter Demo (NEW):
+  - Selects random tech job from jobsData.ts
+  - Responds as a hiring manager
+  - Answers questions about the role they're hiring for
+  - Describes required skills, salary, team dynamics
 ```
 
 ## Technical Implementation
 
-### 1. Create User Type Selector Component
-**New File:** `src/components/UserTypeSelector.tsx`
+### 1. Create Recruiter Demo Persona Data
+**New File:** `src/data/recruiterDemoPersonas.ts`
 
-A new component with two large buttons:
-- **"I'm looking for a job"** (Briefcase icon) - Sets user type to "jobseeker"
-- **"I'm looking to hire"** (Users icon) - Sets user type to "recruiter"
+Create a structure for recruiter personas that includes:
+- Recruiter name and company
+- The job they're hiring for (from `jobsData.ts`)
+- Pre-built responses for common recruiter questions:
+  - `askingName`: Introduce themselves
+  - `roleDescription`: What position they're hiring for
+  - `skills`: Required skills for the role
+  - `experience`: Experience level needed
+  - `salary`: Compensation details
+  - `teamCulture`: Team dynamics and company culture
+  - `timeline`: Hiring urgency
+  - `challenges`: Current challenges in the role
+  - `general`: Fallback responses
 
-Style will match the existing `ChatModeSelector` with animated buttons.
+Include a helper function `getRandomRecruiterPersona()` that:
+1. Filters `JOBS_DATA` to only tech jobs (using `isTechJob` logic)
+2. Randomly selects one job
+3. Returns a generated recruiter persona with that job's details
 
-### 2. Update Index Page State Machine
-**File:** `src/pages/Index.tsx`
+### 2. Update Demo Mode Hook
+**File:** `src/hooks/useDemoMode.ts`
 
-Add new state:
-```typescript
-type UserType = "jobseeker" | "recruiter" | null;
-const [userType, setUserType] = useState<UserType>(null);
-```
+**Changes:**
+- Add `userType` parameter to `startDemo(userType: UserType)`
+- Add new type `RecruiterDemoPersona` for the recruiter persona structure
+- Add new `RecruiterQuestionType` for detecting recruiter-specific questions
+- Add `detectRecruiterQuestionType()` function to identify:
+  - Name requests
+  - Role/position questions
+  - Skills requirements
+  - Experience level
+  - Salary/compensation
+  - Team/culture questions
+  - Timeline/urgency
+  - General questions
+- Update `generateResponse()` to check the user type and call the appropriate response generator
+- Update toast notifications to show different info for recruiters (job title + company instead of career goal)
 
-Update the flow:
-1. `userType === null` → Show `UserTypeSelector`
-2. `userType !== null && chatMode === null` → Show `ChatModeSelector`
-3. `chatMode === "voice"` → Voice chat
-4. `chatMode === "text"` → Text chat
-
-Update `handleBack`:
-- From chat mode selection → Reset `userType` to `null`
-- From chat → Reset `chatMode` to `null`
-
-Update header text dynamically based on journey.
-
-### 3. Create Recruiter-Specific Prompts
-**File:** `src/constants/advisorPrompt.ts`
-
-Add new exports:
-- `RECRUITER_SYSTEM_PROMPT` - Instructions for recruiting advisor
-- `RECRUITER_GREETING_PROMPT` - Initial greeting for recruiters
-
-The recruiter prompt will:
-- Ask for the recruiter's name first
-- Ask about the role they're hiring for
-- Gather required skills and experience
-- Ask about company culture and team dynamics
-- Provide a skills profile summary of the ideal candidate
-- Generate mock applicant recommendations
-
-### 4. Create Applicant Data Structure
-**New File:** `src/data/applicantPersonas.ts`
-
-Create 20-30 mock applicants with:
-- Name, current role, years of experience
-- Skill scores (using the same 26 skills)
-- Brief bio/summary
-- Availability status
-- Location (South Wales focus)
-
-### 5. Create Applicant Matching Hook
-**New File:** `src/hooks/useApplicantRecommendations.ts`
-
-Similar to `useJobRecommendations.ts`:
-- Parse the conversation to extract required skills from the job description
-- Match skills against applicant personas
-- Calculate match scores
-- Return top 8 matching applicants
-
-### 6. Create Applicant Card Component
-**New File:** `src/components/ApplicantMatchCard.tsx`
-
-Display each applicant with:
-- Name and current role
-- Match percentage (using existing `ProfileBlobChart`)
-- Matched skills badges
-- Years of experience
-- Brief bio snippet
-
-### 7. Create Applicants Panel
-**New File:** `src/components/ApplicantCardsPanel.tsx`
-
-Similar to `JobCardsPanel.tsx`:
-- Grid layout of applicant cards
-- Header with back/chat buttons
-- Footer with next steps:
-  - "Schedule interviews"
-  - "Save shortlist"
-
-### 8. Update Text Chat Panel
+### 3. Update Text Chat Panel
 **File:** `src/components/TextChatPanel.tsx`
 
-- Accept `userType` prop to determine which panel to show
-- Conditionally render `JobCardsPanel` or `ApplicantCardsPanel`
-- Update header text based on journey type
+**Changes:**
+- Pass `userType` to `startDemo()` function call
+- The demo button click handler already exists; just update the `startDemo` call
 
-### 9. Update Text Chat Hook
-**File:** `src/hooks/useTextChat.ts`
+### 4. Update Return Type Interface
+**File:** `src/hooks/useDemoMode.ts`
 
-- Accept `userType` parameter in `initiateConversation`
-- Use appropriate system prompt based on user type
-- Pass correct greeting prompt
-
-### 10. Update Voice Chat Hook
-**File:** `src/hooks/useRealtimeVoice.ts`
-
-- Accept `userType` parameter in `startConversation`
-- Use appropriate system prompt in WebSocket session config
-
-### 11. Update Feature Hints on Home Screen
-**File:** `src/pages/Index.tsx`
-
-Change the feature hints based on selected journey:
-- **Job Seeker:** "Skills Assessment", "Local Jobs", "Career Tips"
-- **Recruiter:** "Role Definition", "Candidate Matching", "Hiring Tips"
+Update `UseDemoModeReturn` interface:
+- Keep `currentPersona: DemoPersona | null` for job seekers
+- Add `currentRecruiterPersona: RecruiterDemoPersona | null` for recruiters
+- Update `startDemo` signature to accept `userType`
 
 ## File Changes Summary
 
 | File | Action |
 |------|--------|
-| `src/components/UserTypeSelector.tsx` | Create |
-| `src/constants/advisorPrompt.ts` | Modify (add recruiter prompts) |
-| `src/data/applicantPersonas.ts` | Create |
-| `src/hooks/useApplicantRecommendations.ts` | Create |
-| `src/components/ApplicantMatchCard.tsx` | Create |
-| `src/components/ApplicantCardsPanel.tsx` | Create |
-| `src/pages/Index.tsx` | Modify (add user type state/flow) |
-| `src/components/TextChatPanel.tsx` | Modify (accept userType prop) |
-| `src/hooks/useTextChat.ts` | Modify (accept userType param) |
-| `src/hooks/useRealtimeVoice.ts` | Modify (accept userType param) |
+| `src/data/recruiterDemoPersonas.ts` | Create |
+| `src/hooks/useDemoMode.ts` | Modify |
+| `src/components/TextChatPanel.tsx` | Modify (pass userType to startDemo) |
 
 ## Technical Details
 
-### Recruiter System Prompt Key Points:
-- Ask for recruiter's name first
-- One question at a time approach (same as job seeker)
-- Gather: job title, department, required skills, experience level, salary range, team culture
-- Track which of the 26 skills are mentioned as requirements
-- Generate "Ideal Candidate Profile" summary
-- Follow up with mock applicant recommendations
+### Recruiter Question Type Detection
 
-### Applicant Matching Algorithm:
-1. Extract required skills from conversation (regex patterns like job matching)
-2. For each applicant, check skill overlap
-3. Calculate match score based on:
-   - Number of matching skills
-   - Applicant's proficiency level in those skills
-4. Sort by match score, return top 8
+The `detectRecruiterQuestionType` function will look for:
 
-### State Flow Diagram:
-```text
-┌─────────────────┐
-│  userType=null  │ ← Initial state
-│ chatMode=null   │
-└────────┬────────┘
-         │ Select "Job Seeker" or "Recruiter"
-         ▼
-┌─────────────────┐
-│ userType=chosen │
-│ chatMode=null   │ ← Show ChatModeSelector
-└────────┬────────┘
-         │ Select "Voice" or "Text"
-         ▼
-┌─────────────────┐
-│ userType=chosen │
-│ chatMode=chosen │ ← Chat interface
-└────────┬────────┘
-         │ Assessment complete
-         ▼
-┌─────────────────┐
-│  Results Panel  │ ← JobCardsPanel or ApplicantCardsPanel
-└─────────────────┘
+- **askingName**: "your name", "who am i speaking", "may i ask your name"
+- **roleDescription**: "position", "role", "job", "hiring for", "what are you looking for"
+- **skills**: "skills", "qualifications", "requirements", "looking for", "need", "must have"
+- **experience**: "experience", "years", "senior", "junior", "level"
+- **salary**: "salary", "compensation", "pay", "benefits", "package"
+- **teamCulture**: "team", "culture", "environment", "work with", "colleagues"
+- **timeline**: "when", "urgency", "start date", "timeline", "fill this"
+- **challenges**: "challenges", "problems", "difficult", "issues", "why this role"
+
+### Recruiter Response Generation
+
+Responses will be dynamically generated based on the selected job's data:
+
+```typescript
+// Example for a "DevOps Engineer" role at "Comparethemarket" in Cardiff
+{
+  askingName: "I'm Alex, the Head of Engineering at Comparethemarket.",
+  roleDescription: "We're looking for a DevOps Engineer to join our Cardiff team. It's a key role in our infrastructure team.",
+  skills: "We really need someone strong in Programming and Networks & Cybersecurity. Systems thinking is also important for understanding our architecture.",
+  experience: "We're looking for someone mid-level, probably 3-5 years of experience in a similar role.",
+  salary: "The salary is around £58,000, competitive for the Cardiff market.",
+  teamCulture: "We're a collaborative team that values continuous improvement. We work in agile sprints and everyone's input matters.",
+  timeline: "We'd like to have someone start within the next 2-3 months if possible.",
+  challenges: "Our main challenge is scaling our CI/CD pipelines as we grow. We need someone who can help us modernize our infrastructure.",
+  general: ["This role is really pivotal for us.", "I'm excited about what this person could bring to the team."]
+}
 ```
+
+### Demo Completion Detection for Recruiters
+
+The demo will end when the AI outputs an "Ideal Candidate Profile" or "Matching Candidates" signal (matching the recruiter system prompt's expected output format).
 
