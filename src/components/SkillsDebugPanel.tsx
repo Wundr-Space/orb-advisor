@@ -58,7 +58,7 @@ export function SkillsDebugPanel({ skills, isVisible }: SkillsDebugPanelProps) {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -400, opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed left-0 top-0 h-full w-[400px] bg-card border-r border-border z-50 flex flex-col shadow-xl rounded-r-3xl"
+          className="fixed left-0 top-0 h-full w-[480px] bg-card border-r border-border z-50 flex flex-col shadow-xl rounded-r-3xl"
         >
           {/* Header */}
           <div className="p-4 border-b border-border">
