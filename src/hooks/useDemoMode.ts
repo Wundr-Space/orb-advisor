@@ -3,6 +3,7 @@ import { DemoPersona, getRandomPersona } from "@/data/demoPersonas";
 import { toast } from "sonner";
 
 type QuestionType = 
+  | "askingName"
   | "greeting"
   | "analyticalThinking"
   | "resilience"
@@ -26,6 +27,18 @@ interface UseDemoModeReturn {
 
 const detectQuestionType = (message: string): QuestionType => {
   const lower = message.toLowerCase();
+  
+  // Asking for name detection (should come first as it's the first question)
+  if (
+    lower.includes("what's your name") ||
+    lower.includes("what is your name") ||
+    lower.includes("your name") ||
+    lower.includes("who am i speaking") ||
+    lower.includes("may i ask your name") ||
+    lower.includes("call you")
+  ) {
+    return "askingName";
+  }
   
   // Greeting/introduction detection
   if (
@@ -240,7 +253,7 @@ export const useDemoMode = (): UseDemoModeReturn => {
     
     // Add other unused specific responses as fallback (exclude "general" which is an array)
     const specificTypes = [
-      "greeting", "analyticalThinking", "resilience", "leadership",
+      "askingName", "greeting", "analyticalThinking", "resilience", "leadership",
       "creativeThinking", "customerService", "technology", "learning",
       "teamwork", "problemSolving", "communication"
     ] as const;
