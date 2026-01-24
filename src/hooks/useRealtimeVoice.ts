@@ -146,9 +146,9 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
               },
               turn_detection: {
                 type: "server_vad",
-                threshold: 0.7,
-                prefix_padding_ms: 400,
-                silence_duration_ms: 1200,
+                threshold: 0.9,
+                prefix_padding_ms: 500,
+                silence_duration_ms: 1500,
               },
             },
           }),
