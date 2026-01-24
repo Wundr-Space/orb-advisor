@@ -80,7 +80,7 @@ export const TextChatPanel = ({
                 <div
                   className={`max-w-[80%] px-4 py-3 rounded-2xl ${
                     message.role === "user"
-                      ? "bg-primary/20 text-primary-foreground border border-primary/30"
+                      ? "bg-primary/20 text-foreground border border-primary/30"
                       : "bg-secondary/50 text-foreground border border-border/50"
                   }`}
                 >
