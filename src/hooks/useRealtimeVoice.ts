@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ADVISOR_SYSTEM_PROMPT } from "@/constants/advisorPrompt";
+import { ADVISOR_SYSTEM_PROMPT, INITIAL_GREETING_PROMPT } from "@/constants/advisorPrompt";
 
 interface Message {
   role: "user" | "assistant";
@@ -207,6 +207,24 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
           setIsConnected(true);
           setIsListening(true);
           toast.success("Connected to Career Advisor");
+
+          // Trigger AI to introduce itself
+          ws.send(
+            JSON.stringify({
+              type: "conversation.item.create",
+              item: {
+                type: "message",
+                role: "user",
+                content: [
+                  {
+                    type: "input_text",
+                    text: INITIAL_GREETING_PROMPT,
+                  },
+                ],
+              },
+            })
+          );
+          ws.send(JSON.stringify({ type: "response.create" }));
         } catch (micError) {
           console.error("Microphone error:", micError);
           toast.error("Please allow microphone access to use voice features");
