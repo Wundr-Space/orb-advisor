@@ -66,6 +66,27 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
     },
   };
 
+  // South Park style mouth flapping animation
+  const linear: Easing = "linear";
+  
+  const mouthVariants = {
+    idle: {
+      scaleY: 0,
+      opacity: 0,
+    },
+    listening: {
+      scaleY: 0,
+      opacity: 0,
+    },
+    speaking: {
+      scaleY: [0.3, 1, 0.5, 1, 0.3],
+      opacity: 1,
+      transition: {
+        scaleY: { duration: 0.15, repeat: Infinity, ease: linear },
+      },
+    },
+  };
+
   return (
     <div className="relative flex items-center justify-center">
       {/* Main blob container */}
@@ -159,6 +180,30 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
             {/* Eye highlights */}
             <circle cx="67" cy="73" r="2" className="fill-primary-foreground" />
             <circle cx="117" cy="73" r="2" className="fill-primary-foreground" />
+          </motion.g>
+
+          {/* South Park style mouth - only visible when speaking */}
+          <motion.g
+            variants={mouthVariants}
+            animate={getAnimationVariant()}
+            style={{ originY: 0, transformOrigin: "90px 108px" }}
+          >
+            {/* Mouth opening - simple oval that flaps */}
+            <ellipse
+              cx="90"
+              cy="115"
+              rx="15"
+              ry="10"
+              className="fill-foreground"
+            />
+            {/* Inside of mouth */}
+            <ellipse
+              cx="90"
+              cy="117"
+              rx="10"
+              ry="6"
+              className="fill-destructive"
+            />
           </motion.g>
         </svg>
       </motion.div>
