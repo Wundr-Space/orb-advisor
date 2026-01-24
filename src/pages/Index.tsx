@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GlowingOrb } from "@/components/GlowingOrb";
+import { BlobAdvisor } from "@/components/BlobAdvisor";
 import { StartButton } from "@/components/StartButton";
 import { ConversationPanel } from "@/components/ConversationPanel";
 import { ChatModeSelector } from "@/components/ChatModeSelector";
@@ -9,7 +9,7 @@ import { SkillsDebugPanel } from "@/components/SkillsDebugPanel";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useSkillScores } from "@/hooks/useSkillScores";
-import { Briefcase, ArrowLeft, Bug } from "lucide-react";
+import { Sparkles, ArrowLeft, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -65,9 +65,9 @@ const Index = () => {
       <SkillsDebugPanel skills={skills} isVisible={showDebugPanel} />
 
       {/* Debug Toggle - Fixed position */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
         <Bug className="w-4 h-4 text-muted-foreground" />
-        <Label htmlFor="debug-mode" className="text-xs text-muted-foreground cursor-pointer">
+        <Label htmlFor="debug-mode" className="text-sm text-muted-foreground cursor-pointer">
           Debug
         </Label>
         <Switch
@@ -77,12 +77,11 @@ const Index = () => {
         />
       </div>
 
-      {/* Background grid pattern */}
-      <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
-      
-      {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
+      {/* Subtle decorative shapes */}
+      <div className="absolute top-20 left-10 w-20 h-20 rounded-full bg-secondary/30" />
+      <div className="absolute top-40 right-20 w-12 h-12 rounded-full bg-accent/30" />
+      <div className="absolute bottom-32 left-1/4 w-16 h-16 rounded-full bg-primary/20" />
+      <div className="absolute bottom-20 right-1/3 w-10 h-10 rounded-full bg-secondary/40" />
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
@@ -90,18 +89,18 @@ const Index = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mb-16"
+          className="flex flex-col items-center mb-12"
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-              <Briefcase className="w-6 h-6 text-primary" />
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-full bg-accent/30">
+              <Sparkles className="w-6 h-6 text-accent-foreground" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
               Career Advisor
             </h1>
           </div>
-          <p className="text-muted-foreground text-center max-w-md">
-            Your AI-powered guide for career decisions, interview prep, and professional growth
+          <p className="text-muted-foreground text-center max-w-md text-lg">
+            Let's discover your skills and find your perfect job!
           </p>
         </motion.div>
 
@@ -114,9 +113,9 @@ const Index = () => {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center"
             >
-              {/* Orb container */}
-              <div className="flex-shrink-0 mb-20">
-                <GlowingOrb
+              {/* Blob container */}
+              <div className="flex-shrink-0 mb-16">
+                <BlobAdvisor
                   isSpeaking={false}
                   isListening={false}
                   isConnected={false}
@@ -135,18 +134,15 @@ const Index = () => {
                 transition={{ delay: 0.5 }}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2"
               >
-                <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
-                  <span className="px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
-                    Resume Tips
+                <div className="flex flex-wrap justify-center gap-3 text-sm">
+                  <span className="px-4 py-2 rounded-full bg-primary/20 text-foreground font-medium">
+                    Skills Assessment
                   </span>
-                  <span className="px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
-                    Interview Prep
+                  <span className="px-4 py-2 rounded-full bg-secondary/40 text-foreground font-medium">
+                    Local Jobs
                   </span>
-                  <span className="px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
-                    Career Transitions
-                  </span>
-                  <span className="px-3 py-1.5 rounded-full bg-secondary/50 border border-border/50">
-                    Salary Negotiation
+                  <span className="px-4 py-2 rounded-full bg-accent/30 text-foreground font-medium">
+                    Career Tips
                   </span>
                 </div>
               </motion.div>
@@ -172,16 +168,16 @@ const Index = () => {
                     variant="ghost"
                     size="icon"
                     onClick={handleBack}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-full"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </Button>
                 </motion.div>
               )}
 
-              {/* Orb container */}
-              <div className="flex-shrink-0 mb-20">
-                <GlowingOrb
+              {/* Blob container */}
+              <div className="flex-shrink-0 mb-16">
+                <BlobAdvisor
                   isSpeaking={isSpeaking}
                   isListening={isListening}
                   isConnected={isConnected}
