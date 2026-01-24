@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BlobAdvisor } from "@/components/BlobAdvisor";
 import { StartButton } from "@/components/StartButton";
@@ -6,6 +6,7 @@ import { ConversationPanel } from "@/components/ConversationPanel";
 import { ChatModeSelector } from "@/components/ChatModeSelector";
 import { TextChatPanel } from "@/components/TextChatPanel";
 import { SkillsDebugPanel } from "@/components/SkillsDebugPanel";
+import { VoicePersonaSelector, type VoicePersona } from "@/components/VoicePersonaSelector";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useSkillScores } from "@/hooks/useSkillScores";
@@ -19,6 +20,7 @@ type ChatMode = "voice" | "text" | null;
 const Index = () => {
   const [chatMode, setChatMode] = useState<ChatMode>(null);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [selectedPersona, setSelectedPersona] = useState<VoicePersona>("coral");
 
   const {
     isConnected,
@@ -58,6 +60,10 @@ const Index = () => {
     clearMessages();
     setChatMode(null);
   };
+
+  const handleStartConversation = useCallback(() => {
+    startConversation(selectedPersona);
+  }, [startConversation, selectedPersona]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -176,7 +182,7 @@ const Index = () => {
               )}
 
               {/* Blob container */}
-              <div className="flex-shrink-0 mb-16">
+              <div className="flex-shrink-0 mb-8">
                 <BlobAdvisor
                   isSpeaking={isSpeaking}
                   isListening={isListening}
@@ -184,12 +190,23 @@ const Index = () => {
                 />
               </div>
 
+              {/* Voice Persona Selector - only show when not connected */}
+              {!isConnected && (
+                <div className="mb-6">
+                  <VoicePersonaSelector
+                    selectedPersona={selectedPersona}
+                    onSelectPersona={setSelectedPersona}
+                    disabled={isConnecting}
+                  />
+                </div>
+              )}
+
               {/* Start button */}
-              <div className="mb-12">
+              <div className="mb-8">
                 <StartButton
                   isConnected={isConnected}
                   isConnecting={isConnecting}
-                  onStart={startConversation}
+                  onStart={handleStartConversation}
                   onStop={stopConversation}
                 />
               </div>
