@@ -109,6 +109,19 @@ export const TextChatPanel = ({
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h2 className="text-lg font-bold text-foreground">Chat with Career Advisor</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasJobRecommendations && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowJobCards(true)}
+              className="rounded-full gap-2"
+            >
+              <Briefcase className="w-4 h-4" />
+              View Jobs ({recommendedJobs.length})
+            </Button>
+          )}
           {/* Demo button */}
           <Button
             variant={isDemoMode ? "destructive" : "outline"}
@@ -130,17 +143,6 @@ export const TextChatPanel = ({
             )}
           </Button>
         </div>
-        {hasJobRecommendations && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowJobCards(true)}
-            className="rounded-full gap-2"
-          >
-            <Briefcase className="w-4 h-4" />
-            View Jobs ({recommendedJobs.length})
-          </Button>
-        )}
       </div>
 
       {/* Messages */}
