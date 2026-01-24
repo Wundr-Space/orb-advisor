@@ -173,14 +173,14 @@ const detectQuestionType = (message: string): QuestionType => {
 export const useDemoMode = (): UseDemoModeReturn => {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [currentPersona, setCurrentPersona] = useState<DemoPersona | null>(null);
-  const usedGeneralResponses = useRef<Set<number>>(new Set());
+  const usedResponses = useRef<Set<string>>(new Set());
   const questionCount = useRef(0);
 
   const startDemo = useCallback(() => {
     const persona = getRandomPersona();
     setCurrentPersona(persona);
     setIsDemoMode(true);
-    usedGeneralResponses.current.clear();
+    usedResponses.current.clear();
     questionCount.current = 0;
     toast.success(`Demo started: ${persona.currentRole} (${persona.yearsExperience} years)`, {
       description: `Goal: ${persona.careerGoal}`,
@@ -215,30 +215,58 @@ export const useDemoMode = (): UseDemoModeReturn => {
       return null;
     }
 
-    // Detect question type
-    const questionType = detectQuestionType(aiMessage);
     questionCount.current++;
 
-    // Get appropriate response
-    if (questionType === "general") {
-      const generalResponses = currentPersona.commonResponses.general;
-      // Find an unused general response
-      let availableIndices = generalResponses
-        .map((_, i) => i)
-        .filter(i => !usedGeneralResponses.current.has(i));
-      
-      if (availableIndices.length === 0) {
-        // Reset if all used
-        usedGeneralResponses.current.clear();
-        availableIndices = generalResponses.map((_, i) => i);
+    // Detect question type
+    const questionType = detectQuestionType(aiMessage);
+    
+    // Build a pool of all available responses
+    const allResponses: { type: string; response: string }[] = [];
+    
+    // Add the specific response for the detected question type first (priority)
+    if (questionType !== "general") {
+      const specificResponse = currentPersona.commonResponses[questionType];
+      if (specificResponse && !usedResponses.current.has(specificResponse)) {
+        allResponses.push({ type: questionType, response: specificResponse });
       }
+    }
+    
+    // Add all general responses
+    currentPersona.commonResponses.general.forEach((response, i) => {
+      if (!usedResponses.current.has(response)) {
+        allResponses.push({ type: `general-${i}`, response });
+      }
+    });
+    
+    // Add other unused specific responses as fallback (exclude "general" which is an array)
+    const specificTypes = [
+      "greeting", "analyticalThinking", "resilience", "leadership",
+      "creativeThinking", "customerService", "technology", "learning",
+      "teamwork", "problemSolving", "communication"
+    ] as const;
+    
+    specificTypes.forEach(type => {
+      if (type !== questionType) {
+        const response = currentPersona.commonResponses[type];
+        if (response && typeof response === "string" && !usedResponses.current.has(response)) {
+          allResponses.push({ type, response });
+        }
+      }
+    });
 
-      const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-      usedGeneralResponses.current.add(randomIndex);
-      return generalResponses[randomIndex];
+    // If all responses used, reset and start over
+    if (allResponses.length === 0) {
+      usedResponses.current.clear();
+      // Return greeting to restart
+      const greetingResponse = currentPersona.commonResponses.greeting;
+      usedResponses.current.add(greetingResponse);
+      return greetingResponse;
     }
 
-    return currentPersona.commonResponses[questionType] || currentPersona.commonResponses.general[0];
+    // Prefer the matched question type, otherwise pick randomly
+    const selectedResponse = allResponses[0];
+    usedResponses.current.add(selectedResponse.response);
+    return selectedResponse.response;
   }, [currentPersona, isDemoMode]);
 
   return {
