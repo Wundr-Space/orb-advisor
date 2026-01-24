@@ -6,11 +6,12 @@ import { ConversationPanel } from "@/components/ConversationPanel";
 import { ChatModeSelector } from "@/components/ChatModeSelector";
 import { TextChatPanel } from "@/components/TextChatPanel";
 import { SkillsDebugPanel } from "@/components/SkillsDebugPanel";
-import { VoicePersonaSelector, type VoicePersona } from "@/components/VoicePersonaSelector";
+import { VoiceSettingsPanel } from "@/components/VoiceSettingsPanel";
+import { type VoicePersona } from "@/components/VoicePersonaSelector";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useSkillScores } from "@/hooks/useSkillScores";
-import { Sparkles, ArrowLeft, Bug } from "lucide-react";
+import { Sparkles, ArrowLeft, Bug, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,7 @@ type ChatMode = "voice" | "text" | null;
 const Index = () => {
   const [chatMode, setChatMode] = useState<ChatMode>(null);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState<VoicePersona>("coral");
 
   const {
@@ -70,17 +72,38 @@ const Index = () => {
       {/* Skills Debug Panel */}
       <SkillsDebugPanel skills={skills} isVisible={showDebugPanel} />
 
-      {/* Debug Toggle - Fixed position */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
-        <Bug className="w-4 h-4 text-muted-foreground" />
-        <Label htmlFor="debug-mode" className="text-sm text-muted-foreground cursor-pointer">
-          Debug
-        </Label>
-        <Switch
-          id="debug-mode"
-          checked={showDebugPanel}
-          onCheckedChange={setShowDebugPanel}
-        />
+      {/* Voice Settings Panel */}
+      <VoiceSettingsPanel
+        isVisible={showVoiceSettings}
+        selectedPersona={selectedPersona}
+        onSelectPersona={setSelectedPersona}
+        disabled={isConnected || isConnecting}
+      />
+
+      {/* Toggle buttons - Fixed position */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
+          <Bug className="w-4 h-4 text-muted-foreground" />
+          <Label htmlFor="debug-mode" className="text-sm text-muted-foreground cursor-pointer">
+            Debug
+          </Label>
+          <Switch
+            id="debug-mode"
+            checked={showDebugPanel}
+            onCheckedChange={setShowDebugPanel}
+          />
+        </div>
+        <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
+          <Settings className="w-4 h-4 text-muted-foreground" />
+          <Label htmlFor="voice-settings" className="text-sm text-muted-foreground cursor-pointer">
+            Voice
+          </Label>
+          <Switch
+            id="voice-settings"
+            checked={showVoiceSettings}
+            onCheckedChange={setShowVoiceSettings}
+          />
+        </div>
       </div>
 
       {/* Subtle decorative shapes */}
@@ -190,16 +213,6 @@ const Index = () => {
                 />
               </div>
 
-              {/* Voice Persona Selector - only show when not connected */}
-              {!isConnected && (
-                <div className="mb-6">
-                  <VoicePersonaSelector
-                    selectedPersona={selectedPersona}
-                    onSelectPersona={setSelectedPersona}
-                    disabled={isConnecting}
-                  />
-                </div>
-              )}
 
               {/* Start button */}
               <div className="mb-8">
