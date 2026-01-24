@@ -63,6 +63,7 @@ export const TextChatPanel = ({
     return (
       <JobCardsPanel
         jobs={recommendedJobs}
+        skills={skills}
         onBack={onBack}
         onShowChat={() => setShowJobCards(false)}
       />
