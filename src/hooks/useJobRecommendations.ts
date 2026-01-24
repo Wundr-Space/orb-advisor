@@ -61,15 +61,22 @@ export const useJobRecommendations = (
     // Score each job based on skill matches
     const scoredJobs: JobRecommendation[] = JOBS_DATA.map((job) => {
       const matchedSkills: string[] = [];
-      let matchScore = 0;
+      let totalProficiency = 0;
 
       job.skills.forEach((jobSkill) => {
         const userScore = skillScoreMap.get(jobSkill.toLowerCase());
         if (userScore !== undefined) {
           matchedSkills.push(jobSkill);
-          matchScore += userScore;
+          totalProficiency += userScore;
         }
       });
+
+      // Calculate true percentage: (coverage × avg proficiency) as a percentage
+      // coverage = matchedSkills / totalJobSkills (0-1)
+      // avgProficiency = totalProficiency / matchedSkills / 5 (0-1, normalized to max score of 5)
+      const coverage = job.skills.length > 0 ? matchedSkills.length / job.skills.length : 0;
+      const avgProficiency = matchedSkills.length > 0 ? totalProficiency / matchedSkills.length / 5 : 0;
+      const matchScore = Math.round(coverage * avgProficiency * 100);
 
       return {
         ...job,
