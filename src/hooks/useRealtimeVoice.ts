@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ADVISOR_SYSTEM_PROMPT } from "@/constants/advisorPrompt";
 
 interface Message {
   role: "user" | "assistant";
@@ -136,17 +137,7 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
             type: "session.update",
             session: {
               modalities: ["text", "audio"],
-              instructions: `You are a professional and empathetic Career Advisor AI. Your role is to help users with career-related guidance including:
-- Resume and CV advice
-- Job search strategies
-- Interview preparation
-- Career transitions and pivots
-- Skill development recommendations
-- Workplace challenges
-- Salary negotiation tips
-- Professional networking guidance
-
-Be warm, encouraging, and practical in your advice. Ask clarifying questions when needed to provide more personalized guidance. Keep responses conversational and focused.`,
+              instructions: ADVISOR_SYSTEM_PROMPT,
               voice: "coral",
               input_audio_format: "pcm16",
               output_audio_format: "pcm16",
