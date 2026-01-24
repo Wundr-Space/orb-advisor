@@ -54,11 +54,11 @@ export function SkillsDebugPanel({ skills, isVisible }: SkillsDebugPanelProps) {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ x: -320, opacity: 0 }}
+          initial={{ x: -400, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -320, opacity: 0 }}
+          exit={{ x: -400, opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed left-0 top-0 h-full w-80 bg-card/95 backdrop-blur-sm border-r border-border z-50 flex flex-col"
+          className="fixed left-0 top-0 h-full w-[400px] bg-card/95 backdrop-blur-sm border-r border-border z-50 flex flex-col"
         >
           {/* Header */}
           <div className="p-4 border-b border-border">
