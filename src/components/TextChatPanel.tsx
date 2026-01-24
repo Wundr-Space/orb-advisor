@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ArrowLeft, Loader2 } from "lucide-react";
+import { Send, ArrowLeft, Loader2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { JobCardsPanel } from "@/components/JobCardsPanel";
+import { useJobRecommendations } from "@/hooks/useJobRecommendations";
 
 interface Message {
   role: "user" | "assistant";
@@ -24,7 +26,11 @@ export const TextChatPanel = ({
   onBack,
 }: TextChatPanelProps) => {
   const [input, setInput] = useState("");
+  const [showJobCards, setShowJobCards] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  const recommendedJobs = useJobRecommendations(messages);
+  const hasJobRecommendations = recommendedJobs.length > 0;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -32,13 +38,33 @@ export const TextChatPanel = ({
     }
   }, [messages]);
 
+  // Auto-show job cards when recommendations are detected
+  useEffect(() => {
+    if (hasJobRecommendations && !showJobCards) {
+      setShowJobCards(true);
+    }
+  }, [hasJobRecommendations]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !isLoading) {
       onSendMessage(input);
       setInput("");
+      // Switch back to chat when user sends a new message
+      setShowJobCards(false);
     }
   };
+
+  // Show job cards panel
+  if (showJobCards && hasJobRecommendations) {
+    return (
+      <JobCardsPanel
+        jobs={recommendedJobs}
+        onBack={onBack}
+        onShowChat={() => setShowJobCards(false)}
+      />
+    );
+  }
 
   return (
     <motion.div
@@ -48,16 +74,29 @@ export const TextChatPanel = ({
       className="w-full max-w-2xl mx-auto flex flex-col h-[500px] bg-card rounded-3xl border border-border shadow-lg"
     >
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onBack}
-          className="text-muted-foreground hover:text-foreground rounded-full"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h2 className="text-lg font-bold text-foreground">Chat with Career Advisor</h2>
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="text-muted-foreground hover:text-foreground rounded-full"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h2 className="text-lg font-bold text-foreground">Chat with Career Advisor</h2>
+        </div>
+        {hasJobRecommendations && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowJobCards(true)}
+            className="rounded-full gap-2"
+          >
+            <Briefcase className="w-4 h-4" />
+            View Jobs ({recommendedJobs.length})
+          </Button>
+        )}
       </div>
 
       {/* Messages */}
