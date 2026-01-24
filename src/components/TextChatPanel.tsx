@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ArrowLeft, Loader2, Briefcase } from "lucide-react";
+import { Send, ArrowLeft, Loader2, Briefcase, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { JobCardsPanel } from "@/components/JobCardsPanel";
 import { useJobRecommendations } from "@/hooks/useJobRecommendations";
+import { useDemoMode } from "@/hooks/useDemoMode";
 import type { Skill } from "@/hooks/useSkillScores";
 
 interface Message {
@@ -32,6 +33,7 @@ export const TextChatPanel = ({
   const [showJobCards, setShowJobCards] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
+  const { isDemoMode, currentPersona, startDemo, stopDemo, generateResponse } = useDemoMode();
   const recommendedJobs = useJobRecommendations(messages, skills);
   const hasJobRecommendations = recommendedJobs.length > 0;
 
@@ -47,6 +49,24 @@ export const TextChatPanel = ({
       setShowJobCards(true);
     }
   }, [hasJobRecommendations]);
+
+  // Auto-respond in demo mode
+  useEffect(() => {
+    if (isDemoMode && !isLoading && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === "assistant") {
+        const response = generateResponse(lastMessage.content);
+        if (response) {
+          // Delay to simulate human typing (1-3 seconds)
+          const delay = 1000 + Math.random() * 2000;
+          const timer = setTimeout(() => {
+            onSendMessage(response);
+          }, delay);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [isDemoMode, isLoading, messages, generateResponse, onSendMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +109,26 @@ export const TextChatPanel = ({
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h2 className="text-lg font-bold text-foreground">Chat with Career Advisor</h2>
+          {/* Demo button */}
+          <Button
+            variant={isDemoMode ? "destructive" : "outline"}
+            size="sm"
+            onClick={isDemoMode ? stopDemo : startDemo}
+            className="rounded-full text-xs gap-1.5"
+            disabled={isLoading}
+          >
+            {isDemoMode ? (
+              <>
+                <Square className="w-3 h-3" />
+                Stop Demo
+              </>
+            ) : (
+              <>
+                <Play className="w-3 h-3" />
+                Demo
+              </>
+            )}
+          </Button>
         </div>
         {hasJobRecommendations && (
           <Button
