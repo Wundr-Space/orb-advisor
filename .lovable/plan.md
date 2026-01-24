@@ -1,162 +1,58 @@
 
+# Fix SVG Height Issue on Mobile View
 
-# Pikuniku-Inspired Redesign
+## Problem Analysis
+The `ProfileBlobChart` component's SVG is only rendering at ~105px height on mobile, even though its container has ~200px available. This happens because:
 
-## Overview
-Transform the career advisor from a dark sci-fi aesthetic to a playful, friendly Pikuniku-inspired design featuring:
-- A cute red blob character with round spectacles as the advisor avatar
-- Muted, soft pastel backgrounds (cream, soft greens, light blues)
-- Bold, simple shapes and colors
-- Warm, approachable feel that reduces intimidation for job seekers
+1. **ResizeObserver timing issue**: The `h-full` class on the container div relies on its parent having a defined height
+2. **Flexbox measurement**: On mobile, when the card layout changes (2 columns instead of 4), the flexbox hasn't fully calculated the available space when the ResizeObserver fires
+3. **Content-based height**: The div with `className="w-full h-full"` reports its content height rather than the available flex space
 
-## Visual Direction
+## Solution
+Use **absolute positioning** for the SVG within a **relative container** that has an explicit aspect ratio or minimum height. This ensures the SVG always fills its container regardless of flexbox timing.
 
-### Color Palette (Pikuniku-inspired)
-| Element | Current | New |
-|---------|---------|-----|
-| Background | Deep space dark (#0a0b0e) | Soft cream/beige (#F5F0E8) |
-| Primary | Electric cyan | Coral red (#E85A4F) - blob color |
-| Secondary | Dark blue | Soft sage green (#A8C686) |
-| Accent | Bright cyan | Sunny yellow (#F6C344) |
-| Text | Light gray | Warm charcoal (#3D3D3D) |
-| Cards | Dark gray | White with subtle shadows |
+## Changes
 
-### The Blob Advisor Character
-Replace the glowing orb with a friendly blob character:
-- Simple red/coral rounded blob shape (like Pikuniku protagonist)
-- Round black spectacles (circular frames)
-- Simple dot eyes behind glasses
-- No mouth (minimalist face)
-- Subtle idle bobbing animation
-- Speaking animation: gentle squish/stretch
-- Listening animation: slight lean forward
+### 1. Update `ProfileBlobChart.tsx`
+- Change the container div to use `position: relative` with explicit sizing
+- Make the SVG use `position: absolute` with `inset-0` to fill the container completely
+- This decouples the SVG sizing from content-based measurement
 
-```text
-Character Design:
-    ┌──────────┐
-   │  ●   ●   │  <- round spectacles with dot eyes
-   │          │
-    └──────────┘
-       blob body (organic rounded shape)
-```
+### 2. Update `JobMatchCard.tsx`  
+- Change the blob container from `flex-1 min-h-0` to use `aspect-square` or a fixed aspect ratio
+- This gives the container a predictable height based on its width, which works consistently on mobile
 
-## Implementation Steps
-
-### 1. Update CSS Variables (src/index.css)
-Replace the dark sci-fi theme with Pikuniku-inspired colors:
-- Cream/beige background
-- Coral red as primary (blob color)
-- Sage green and yellow accents
-- Remove grid pattern, add subtle texture or solid muted colors
-- Update sidebar colors to match
-
-### 2. Create BlobAdvisor Component (replace GlowingOrb.tsx)
-Build a new character component:
-- SVG-based blob shape with organic curves
-- Round spectacles rendered as circles with bridge
-- Simple dot eyes
-- Framer Motion animations for:
-  - Idle: gentle floating/bobbing
-  - Speaking: rhythmic squish (scale X/Y alternating)
-  - Listening: slight forward lean, attentive pose
-- Status indicator becomes friendlier (no glowing dots)
-
-### 3. Update Index Page (src/pages/Index.tsx)
-- Replace GlowingOrb with BlobAdvisor
-- Remove dark background overlays and grid pattern
-- Update header styling to be warmer
-- Simplify feature hints to colorful pills
-
-### 4. Update ChatModeSelector (src/components/ChatModeSelector.tsx)
-- Bold, solid-colored buttons (no glow effects)
-- Rounded, friendly button shapes
-- Playful hover animations (slight bounce)
-- Remove backdrop blur and sci-fi shadows
-
-### 5. Update StartButton (src/components/StartButton.tsx)
-- Solid coral button for start
-- Simple shadow instead of glow
-- Friendly icon styling
-- Bouncy hover effect
-
-### 6. Update TextChatPanel (src/components/TextChatPanel.tsx)
-- White/cream card background
-- User messages: coral colored bubbles
-- Assistant messages: soft green bubbles
-- Rounded, friendly message shapes
-- Remove dark theme styling
-
-### 7. Update SkillsDebugPanel (src/components/SkillsDebugPanel.tsx)
-- Soft cream background
-- Colorful score indicators (use the yellow/green palette)
-- Friendly card styling with subtle shadows
-- Remove neon/glow effects
-
-### 8. Update Tailwind Config (tailwind.config.ts)
-- Add new blob-related animations (squish, bob, bounce)
-- Update color definitions
-- Remove orb-related animations
-
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/index.css` | Complete color system overhaul, remove sci-fi patterns |
-| `src/components/GlowingOrb.tsx` | Replace entirely with `BlobAdvisor.tsx` |
-| `src/pages/Index.tsx` | Update to use BlobAdvisor, remove dark overlays |
-| `src/components/ChatModeSelector.tsx` | Friendly button styling |
-| `src/components/StartButton.tsx` | Warm button design |
-| `src/components/TextChatPanel.tsx` | Light theme chat bubbles |
-| `src/components/SkillsDebugPanel.tsx` | Soft pastel styling |
-| `tailwind.config.ts` | New animations, remove orb config |
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/BlobAdvisor.tsx` | New friendly blob character with spectacles |
+---
 
 ## Technical Details
 
-### BlobAdvisor SVG Structure
-```text
-<svg>
-  <!-- Blob body - organic rounded red shape -->
-  <path d="..." fill="coral" />
-  
-  <!-- Spectacles -->
-  <circle /> <!-- left lens frame -->
-  <circle /> <!-- right lens frame -->
-  <line /> <!-- bridge -->
-  <line /> <!-- left arm -->
-  <line /> <!-- right arm -->
-  
-  <!-- Eyes (inside glasses) -->
-  <circle /> <!-- left eye dot -->
-  <circle /> <!-- right eye dot -->
-</svg>
+**ProfileBlobChart.tsx changes (lines 350-359):**
+```tsx
+return (
+  <div ref={containerRef} className="w-full h-full relative">
+    <svg 
+      ref={svgRef} 
+      className="absolute inset-0 w-full h-full"
+      style={{ background: 'hsl(var(--muted) / 0.3)' }}
+      viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+      preserveAspectRatio="xMidYMid meet"
+    />
+  </div>
+);
 ```
 
-### New Animations
-```text
-- blob-bob: Gentle up/down floating (slower, friendlier than current)
-- blob-speak: Alternating scaleX/scaleY for speaking motion
-- blob-listen: Slight rotation/lean animation
-- button-bounce: Playful hover bounce effect
+**JobMatchCard.tsx changes (lines 45-51):**
+```tsx
+{/* Blob Chart */}
+<div 
+  className="rounded-xl overflow-hidden bg-muted/30 relative"
+  style={{ aspectRatio: '4/3', minHeight: 120 }}
+>
+  <ProfileBlobChart skillMatches={skillMatches} matchPercentage={matchScore} />
+</div>
 ```
 
-### Before/After Comparison
-```text
-BEFORE (Sci-fi):
-- Dark space background
-- Glowing cyan orb with rotating rings
-- Neon shadows and grid patterns
-- Cold, techy feel
-
-AFTER (Pikuniku):
-- Soft cream background
-- Friendly red blob with glasses
-- Solid colors, simple shapes
-- Warm, approachable feel
-```
-
+This approach:
+- Uses `aspectRatio: '4/3'` to give a consistent height relative to width on all screen sizes
+- The absolute positioning ensures the SVG fills whatever space is available
+- Works correctly with the 2-column mobile grid layout
