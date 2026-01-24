@@ -348,13 +348,13 @@ export function ProfileBlobChart({ skillMatches, matchPercentage = 50 }: Profile
   }
 
   return (
-    <div ref={containerRef} className="w-full h-full">
+    <div ref={containerRef} className="w-full h-full relative">
       <svg 
         ref={svgRef} 
-        width={dimensions.width}
-        height={dimensions.height}
-        className="w-full h-full"
+        className="absolute inset-0 w-full h-full"
         style={{ background: 'hsl(var(--muted) / 0.3)' }}
+        viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+        preserveAspectRatio="xMidYMid meet"
       />
     </div>
   );
