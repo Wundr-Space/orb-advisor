@@ -50,10 +50,14 @@ export const TextChatPanel = ({
     : recommendedJobs.length;
 
   useEffect(() => {
+    // ScrollArea uses a viewport element inside, so we need to find it
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const viewport = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   // Auto-show results panel when recommendations are detected
   useEffect(() => {
