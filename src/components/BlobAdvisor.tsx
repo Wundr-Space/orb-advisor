@@ -97,35 +97,35 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
         initial="idle"
       >
         <svg
-          width="220"
-          height="180"
-          viewBox="0 0 220 180"
+          width="240"
+          height="200"
+          viewBox="0 0 240 200"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Shadow - angular */}
           <polygon
-            points="55,168 165,168 155,175 65,175"
+            points="45,188 195,188 180,196 60,196"
             className="fill-foreground/10"
           />
 
-          {/* Body - asymmetrical angular polygonal shape */}
+          {/* Body - asymmetrical angular polygonal shape (scaled up) */}
           <polygon
-            points="95,18 175,28 200,65 192,115 170,150 120,162 55,158 28,130 22,80 40,40"
+            points="95,8 190,22 220,65 210,125 185,168 125,182 45,176 12,140 4,80 28,32"
             fill="#E8A838"
           />
           
           {/* Inner facet highlights - asymmetrical */}
           <polygon
-            points="100,24 165,32 185,62 115,72 45,68 55,42"
+            points="100,16 180,28 205,62 120,75 40,70 50,38"
             fill="#F0B848"
             opacity="0.6"
           />
 
-          {/* Glasses - angular frame style */}
+          {/* Glasses - angular frame style (same size, centered) */}
           {/* Main top bar */}
           <path
-            d="M15 72 L205 72"
+            d="M25 82 L215 82"
             strokeWidth="5"
             strokeLinecap="square"
             className="stroke-foreground"
@@ -133,7 +133,7 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
           
           {/* Left lens - hexagonal half-frame */}
           <path
-            d="M45 72 L45 90 L55 105 L95 105 L105 90 L105 72"
+            d="M55 82 L55 100 L65 115 L105 115 L115 100 L115 82"
             strokeWidth="4"
             fill="none"
             strokeLinejoin="miter"
@@ -142,7 +142,7 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
           
           {/* Right lens - hexagonal half-frame */}
           <path
-            d="M115 72 L115 90 L125 105 L165 105 L175 90 L175 72"
+            d="M125 82 L125 100 L135 115 L175 115 L185 100 L185 82"
             strokeWidth="4"
             fill="none"
             strokeLinejoin="miter"
@@ -152,25 +152,25 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
           {/* Eyes (inside glasses) - diamond shaped */}
           <motion.g variants={eyeVariants} animate={getAnimationVariant()}>
             {/* Left eye - diamond */}
-            <polygon points="75,82 80,88 75,94 70,88" className="fill-foreground" />
+            <polygon points="85,92 90,98 85,104 80,98" className="fill-foreground" />
             {/* Right eye - diamond */}
-            <polygon points="145,82 150,88 145,94 140,88" className="fill-foreground" />
+            <polygon points="155,92 160,98 155,104 150,98" className="fill-foreground" />
           </motion.g>
 
           {/* Angular mouth - only visible when speaking */}
           <motion.g
             variants={mouthVariants}
             animate={getAnimationVariant()}
-            style={{ originY: 0, transformOrigin: "110px 130px" }}
+            style={{ originY: 0, transformOrigin: "120px 145px" }}
           >
             {/* Mouth opening - hexagonal shape */}
             <polygon
-              points="92,128 128,128 135,138 128,148 92,148 85,138"
+              points="102,143 138,143 145,153 138,163 102,163 95,153"
               className="fill-foreground"
             />
             {/* Inside of mouth - smaller hexagon */}
             <polygon
-              points="97,132 123,132 128,140 123,146 97,146 92,140"
+              points="107,147 133,147 138,155 133,161 107,161 102,155"
               className="fill-destructive"
             />
           </motion.g>
