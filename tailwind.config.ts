@@ -69,7 +69,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        sans: ['"Roboto Slab"', 'Georgia', 'serif'],
       },
       keyframes: {
         "accordion-down": {
