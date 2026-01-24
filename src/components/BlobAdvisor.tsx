@@ -109,15 +109,15 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
             className="fill-foreground/10"
           />
 
-          {/* Body - angular polygonal shape */}
+          {/* Body - asymmetrical angular polygonal shape */}
           <polygon
-            points="110,20 170,35 195,70 190,120 165,155 110,165 55,155 30,120 25,70 50,35"
+            points="95,18 175,28 200,65 192,115 170,150 120,162 55,158 28,130 22,80 40,40"
             fill="#E8A838"
           />
           
-          {/* Inner facet highlights */}
+          {/* Inner facet highlights - asymmetrical */}
           <polygon
-            points="110,25 160,38 180,68 110,75 40,68 60,38"
+            points="100,24 165,32 185,62 115,72 45,68 55,42"
             fill="#F0B848"
             opacity="0.6"
           />
