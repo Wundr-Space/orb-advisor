@@ -67,9 +67,15 @@ function parseSkillScores(messages: Message[]): Map<string, number> {
     // "Analytical thinking (4/5)"
     // "Analytical thinking: 4 out of 5"
     const patterns = [
+      // Match "**Skill:** 4/5" (colon inside bold)
+      new RegExp(`\\*{2}${escapedName}:\\*{2}\\s*([1-5])\\s*\\/\\s*5`, "gi"),
+      // Match "**Skill**: 4/5" or "Skill: 4/5" (colon outside bold or no bold)
       new RegExp(`\\*{0,2}${escapedName}\\*{0,2}[:\\s-]+([1-5])\\s*\\/\\s*5`, "gi"),
+      // Match "**Skill** (4/5)" or "Skill (4/5)"
       new RegExp(`\\*{0,2}${escapedName}\\*{0,2}\\s*\\(([1-5])\\s*\\/\\s*5\\)`, "gi"),
+      // Match "Skill: 4 out of 5"
       new RegExp(`\\*{0,2}${escapedName}\\*{0,2}[:\\s-]+([1-5])\\s+out\\s+of\\s+5`, "gi"),
+      // Match "Skill rated 4/5"
       new RegExp(`${escapedName}[^\\d]*rated\\s*([1-5])\\s*\\/\\s*5`, "gi"),
     ];
 
