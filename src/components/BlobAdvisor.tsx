@@ -92,9 +92,18 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
       {/* Main blob container */}
       <motion.div
         className="relative"
-        variants={blobVariants}
-        animate={getAnimationVariant()}
-        initial="idle"
+        animate={{
+          y: isSpeaking ? 0 : [0, -8, 0],
+          scaleX: isSpeaking ? [1, 1.05, 0.95, 1.03, 1] : 1,
+          scaleY: isSpeaking ? [1, 0.95, 1.05, 0.97, 1] : 1,
+          rotate: isListening ? [0, 2, -2, 0] : 0,
+        }}
+        transition={{
+          y: { duration: isSpeaking ? 0 : isListening ? 2 : 3, repeat: Infinity, ease: "easeInOut" },
+          scaleX: isSpeaking ? { duration: 0.4, repeat: Infinity, ease: "easeInOut" } : undefined,
+          scaleY: isSpeaking ? { duration: 0.4, repeat: Infinity, ease: "easeInOut" } : undefined,
+          rotate: isListening ? { duration: 1.5, repeat: Infinity, ease: "easeInOut" } : undefined,
+        }}
       >
         <svg
           width="240"
