@@ -122,40 +122,42 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
             opacity="0.6"
           />
 
-          {/* Glasses - angular frame style (same size, centered) */}
-          {/* Main top bar */}
-          <path
-            d="M25 82 L215 82"
-            strokeWidth="5"
-            strokeLinecap="square"
-            className="stroke-foreground"
-          />
-          
-          {/* Left lens - hexagonal half-frame */}
-          <path
-            d="M55 82 L55 100 L65 115 L105 115 L115 100 L115 82"
-            strokeWidth="4"
-            fill="none"
-            strokeLinejoin="miter"
-            className="stroke-foreground"
-          />
-          
-          {/* Right lens - hexagonal half-frame */}
-          <path
-            d="M125 82 L125 100 L135 115 L175 115 L185 100 L185 82"
-            strokeWidth="4"
-            fill="none"
-            strokeLinejoin="miter"
-            className="stroke-foreground"
-          />
+          {/* Glasses group - centered and tilted */}
+          <g transform="translate(120, 98) rotate(-3) translate(-120, -98)">
+            {/* Main top bar */}
+            <path
+              d="M25 82 L215 82"
+              strokeWidth="5"
+              strokeLinecap="square"
+              className="stroke-foreground"
+            />
+            
+            {/* Left lens - hexagonal half-frame */}
+            <path
+              d="M55 82 L55 100 L65 115 L105 115 L115 100 L115 82"
+              strokeWidth="4"
+              fill="none"
+              strokeLinejoin="miter"
+              className="stroke-foreground"
+            />
+            
+            {/* Right lens - hexagonal half-frame */}
+            <path
+              d="M125 82 L125 100 L135 115 L175 115 L185 100 L185 82"
+              strokeWidth="4"
+              fill="none"
+              strokeLinejoin="miter"
+              className="stroke-foreground"
+            />
 
-          {/* Eyes (inside glasses) - diamond shaped */}
-          <motion.g variants={eyeVariants} animate={getAnimationVariant()}>
-            {/* Left eye - diamond */}
-            <polygon points="85,92 90,98 85,104 80,98" className="fill-foreground" />
-            {/* Right eye - diamond */}
-            <polygon points="155,92 160,98 155,104 150,98" className="fill-foreground" />
-          </motion.g>
+            {/* Eyes (inside glasses) - diamond shaped */}
+            <motion.g variants={eyeVariants} animate={getAnimationVariant()}>
+              {/* Left eye - diamond */}
+              <polygon points="85,92 90,98 85,104 80,98" className="fill-foreground" />
+              {/* Right eye - diamond */}
+              <polygon points="155,92 160,98 155,104 150,98" className="fill-foreground" />
+            </motion.g>
+          </g>
 
           {/* Angular mouth - only visible when speaking */}
           <motion.g
