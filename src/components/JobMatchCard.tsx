@@ -28,7 +28,7 @@ export function JobMatchCard({ job, userSkills, matchScore, matchedSkills }: Job
   const salaryDisplay = formatSalary(job.salary);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group">
+    <div className="rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-md hover:border-primary/30 flex flex-col group h-full">
       {/* Header */}
       <div className="mb-3">
         <div className="flex items-start justify-between gap-2 mb-1">

@@ -134,6 +134,6 @@ export const useJobRecommendations = (
         // Then by total match score
         return b.matchScore - a.matchScore;
       })
-      .slice(0, 5);
+      .slice(0, 8);
   }, [messages, skills]);
 };
