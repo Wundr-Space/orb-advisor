@@ -79,10 +79,10 @@ export const BlobAdvisor = ({ isSpeaking, isListening, isConnected }: BlobAdviso
       opacity: 0,
     },
     speaking: {
-      scaleY: [0.3, 1, 0.5, 1, 0.3],
+      scaleY: [0.2, 1, 0.4, 1, 0.2],
       opacity: 1,
       transition: {
-        scaleY: { duration: 0.15, repeat: Infinity, ease: linear },
+        scaleY: { duration: 0.35, repeat: Infinity, ease: linear },
       },
     },
   };
