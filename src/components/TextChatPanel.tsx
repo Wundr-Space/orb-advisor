@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { JobCardsPanel } from "@/components/JobCardsPanel";
 import { useJobRecommendations } from "@/hooks/useJobRecommendations";
+import type { Skill } from "@/hooks/useSkillScores";
 
 interface Message {
   role: "user" | "assistant";
@@ -17,6 +18,7 @@ interface TextChatPanelProps {
   isLoading: boolean;
   onSendMessage: (content: string) => void;
   onBack: () => void;
+  skills: Skill[];
 }
 
 export const TextChatPanel = ({
@@ -24,12 +26,13 @@ export const TextChatPanel = ({
   isLoading,
   onSendMessage,
   onBack,
+  skills,
 }: TextChatPanelProps) => {
   const [input, setInput] = useState("");
   const [showJobCards, setShowJobCards] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  const recommendedJobs = useJobRecommendations(messages);
+  const recommendedJobs = useJobRecommendations(messages, skills);
   const hasJobRecommendations = recommendedJobs.length > 0;
 
   useEffect(() => {
