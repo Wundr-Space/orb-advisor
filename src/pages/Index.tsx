@@ -152,19 +152,25 @@ const Index = () => {
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
+        {/* Logo - Top Left */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="fixed top-4 left-4 z-40"
+        >
+          <img 
+            src={logo} 
+            alt="Get In - AI Career Advice" 
+            className="h-16 md:h-20 w-auto"
+          />
+        </motion.div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center mb-12"
         >
-          <div className="flex items-center gap-3 mb-3">
-            <img 
-              src={logo} 
-              alt="Get In - AI Career Advice" 
-              className="h-48 md:h-64 w-auto"
-            />
-          </div>
           <p className="text-muted-foreground text-center max-w-md text-lg">
             {userType ? headerContent.subtitle : "Find your next opportunity or the perfect candidate"}
           </p>
