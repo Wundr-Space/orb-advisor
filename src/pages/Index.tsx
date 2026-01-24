@@ -5,15 +5,20 @@ import { StartButton } from "@/components/StartButton";
 import { ConversationPanel } from "@/components/ConversationPanel";
 import { ChatModeSelector } from "@/components/ChatModeSelector";
 import { TextChatPanel } from "@/components/TextChatPanel";
+import { SkillsDebugPanel } from "@/components/SkillsDebugPanel";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useTextChat } from "@/hooks/useTextChat";
-import { Briefcase, ArrowLeft } from "lucide-react";
+import { useSkillScores } from "@/hooks/useSkillScores";
+import { Briefcase, ArrowLeft, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 type ChatMode = "voice" | "text" | null;
 
 const Index = () => {
   const [chatMode, setChatMode] = useState<ChatMode>(null);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const {
     isConnected,
@@ -33,6 +38,12 @@ const Index = () => {
     initiateConversation,
   } = useTextChat();
 
+  // Get current messages based on mode
+  const currentMessages = chatMode === "voice" ? voiceMessages : textMessages;
+  
+  // Parse skill scores from messages
+  const skills = useSkillScores(currentMessages);
+
   // Auto-initiate text chat when mode is selected
   useEffect(() => {
     if (chatMode === "text" && textMessages.length === 0) {
@@ -50,6 +61,22 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* Skills Debug Panel */}
+      <SkillsDebugPanel skills={skills} isVisible={showDebugPanel} />
+
+      {/* Debug Toggle - Fixed position */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-border">
+        <Bug className="w-4 h-4 text-muted-foreground" />
+        <Label htmlFor="debug-mode" className="text-xs text-muted-foreground cursor-pointer">
+          Debug
+        </Label>
+        <Switch
+          id="debug-mode"
+          checked={showDebugPanel}
+          onCheckedChange={setShowDebugPanel}
+        />
+      </div>
+
       {/* Background grid pattern */}
       <div className="absolute inset-0 bg-grid-pattern pointer-events-none" />
       
