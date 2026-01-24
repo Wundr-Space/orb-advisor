@@ -1,105 +1,162 @@
 
 
-# Job Recommendation Integration Plan
+# Pikuniku-Inspired Redesign
 
 ## Overview
-Enhance the Career Advisor to use real South Wales job data after completing a skills assessment. The AI will match the user's top-scored skills against local job listings and recommend relevant opportunities.
+Transform the career advisor from a dark sci-fi aesthetic to a playful, friendly Pikuniku-inspired design featuring:
+- A cute red blob character with round spectacles as the advisor avatar
+- Muted, soft pastel backgrounds (cream, soft greens, light blues)
+- Bold, simple shapes and colors
+- Warm, approachable feel that reduces intimidation for job seekers
 
-## Data Structure (from uploaded file)
-The job_skills_analysis.json contains:
-- **500 local South Wales jobs** with title, company, and required skills
-- **26 skills** mapped to which jobs require them
-- Each job lists 1-7 skills it requires
+## Visual Direction
 
-## Implementation Approach
+### Color Palette (Pikuniku-inspired)
+| Element | Current | New |
+|---------|---------|-----|
+| Background | Deep space dark (#0a0b0e) | Soft cream/beige (#F5F0E8) |
+| Primary | Electric cyan | Coral red (#E85A4F) - blob color |
+| Secondary | Dark blue | Soft sage green (#A8C686) |
+| Accent | Bright cyan | Sunny yellow (#F6C344) |
+| Text | Light gray | Warm charcoal (#3D3D3D) |
+| Cards | Dark gray | White with subtle shadows |
 
-### 1. Store Job Data in Project
-Copy the JSON file to the project's data directory so it can be imported and used by the AI prompts.
+### The Blob Advisor Character
+Replace the glowing orb with a friendly blob character:
+- Simple red/coral rounded blob shape (like Pikuniku protagonist)
+- Round black spectacles (circular frames)
+- Simple dot eyes behind glasses
+- No mouth (minimalist face)
+- Subtle idle bobbing animation
+- Speaking animation: gentle squish/stretch
+- Listening animation: slight lean forward
 
-### 2. Create Job Matching Utility
-Build a utility function that:
-- Takes the user's assessed skills (with scores)
-- Finds jobs that require their top skills (score 3+)
-- Ranks jobs by how many of the user's strong skills they match
-- Returns the top 5-10 matching jobs
-
-### 3. Update System Prompt
-Modify the advisor prompt to:
-- Include instructions on when to provide job recommendations (after 5+ skills assessed)
-- Explain how to present job matches with context about why they fit
-- Format job suggestions attractively with company and skill match info
-
-### 4. Enhance Edge Function
-Update the text-chat edge function to:
-- Accept optional job data context
-- Allow the AI to reference specific local jobs when providing recommendations
-
-## Technical Details
-
-### Files to Create
-1. `src/data/jobsData.ts` - Processed job data as TypeScript for imports
-
-### Files to Modify
-1. `src/constants/advisorPrompt.ts` - Add job recommendation instructions
-2. `src/hooks/useTextChat.ts` - Include job matching context
-3. `supabase/functions/text-chat/index.ts` - Handle larger context with job data
-
-### Job Matching Algorithm
 ```text
-For each job in dataset:
-  - Count how many of user's "strong skills" (score >= 3) match job's required skills
-  - Weight by skill score (higher scored skills = better match)
-  - Return top matches sorted by match quality
+Character Design:
+    ┌──────────┐
+   │  ●   ●   │  <- round spectacles with dot eyes
+   │          │
+    └──────────┘
+       blob body (organic rounded shape)
 ```
-
-### Updated Prompt Flow
-```text
-1. Conduct skills interview (existing)
-2. After 5-8 skills assessed, offer summary
-3. In summary, include:
-   - Skills Snapshot (existing)
-   - "Based on your strengths, here are local opportunities in South Wales:"
-   - Top 3-5 job recommendations with:
-     - Job title and company
-     - Which of their strong skills apply
-     - Why it's a good fit
-```
-
-### Sample Output Format
-```text
-**Your Skills Snapshot:**
-- Analytical thinking: 4/5 (69% demand) - Strong problem-solving shown
-- Leadership: 4/5 (61% demand) - Clear team coordination skills
-- Customer Service: 3/5 (47% demand) - Good communication
-
-**Recommended Jobs in South Wales:**
-
-1. **Process Improvement Specialist** at Ryder Reid Legal Ltd
-   - Matches your: Creative thinking, Customer service
-   - Great fit for your analytical mindset
-
-2. **HR Administrator / HR Advisor** at Goodfellow  
-   - Matches your: Customer service, Resource management
-   - Leverages your leadership experience
-
-3. **Technical Training Specialist** at United Utilities
-   - Matches your: Teaching, Customer service, Technology
-   - Perfect for sharing your expertise
-```
-
-## Data Size Consideration
-The full JSON is ~10K lines. Options:
-- **Option A**: Embed curated subset (top 100 jobs) in prompt for simplicity
-- **Option B**: Create edge function to query jobs dynamically based on skills
-- **Option C**: Store in database table for flexible querying
-
-Recommended: **Option A** for initial implementation - embed a representative sample of ~50-100 jobs directly in the system prompt. This keeps it simple and avoids database changes.
 
 ## Implementation Steps
 
-1. **Copy job data to project**: Save as `src/data/jobsData.ts` with typed exports
-2. **Create job matching helper**: `src/utils/jobMatcher.ts` to find best matches
-3. **Update prompts**: Add job data and recommendation instructions to advisor prompt
-4. **Update text-chat hook**: Pass matched jobs to the AI for context
-5. **Test the full flow**: Run through assessment and verify job recommendations appear
+### 1. Update CSS Variables (src/index.css)
+Replace the dark sci-fi theme with Pikuniku-inspired colors:
+- Cream/beige background
+- Coral red as primary (blob color)
+- Sage green and yellow accents
+- Remove grid pattern, add subtle texture or solid muted colors
+- Update sidebar colors to match
+
+### 2. Create BlobAdvisor Component (replace GlowingOrb.tsx)
+Build a new character component:
+- SVG-based blob shape with organic curves
+- Round spectacles rendered as circles with bridge
+- Simple dot eyes
+- Framer Motion animations for:
+  - Idle: gentle floating/bobbing
+  - Speaking: rhythmic squish (scale X/Y alternating)
+  - Listening: slight forward lean, attentive pose
+- Status indicator becomes friendlier (no glowing dots)
+
+### 3. Update Index Page (src/pages/Index.tsx)
+- Replace GlowingOrb with BlobAdvisor
+- Remove dark background overlays and grid pattern
+- Update header styling to be warmer
+- Simplify feature hints to colorful pills
+
+### 4. Update ChatModeSelector (src/components/ChatModeSelector.tsx)
+- Bold, solid-colored buttons (no glow effects)
+- Rounded, friendly button shapes
+- Playful hover animations (slight bounce)
+- Remove backdrop blur and sci-fi shadows
+
+### 5. Update StartButton (src/components/StartButton.tsx)
+- Solid coral button for start
+- Simple shadow instead of glow
+- Friendly icon styling
+- Bouncy hover effect
+
+### 6. Update TextChatPanel (src/components/TextChatPanel.tsx)
+- White/cream card background
+- User messages: coral colored bubbles
+- Assistant messages: soft green bubbles
+- Rounded, friendly message shapes
+- Remove dark theme styling
+
+### 7. Update SkillsDebugPanel (src/components/SkillsDebugPanel.tsx)
+- Soft cream background
+- Colorful score indicators (use the yellow/green palette)
+- Friendly card styling with subtle shadows
+- Remove neon/glow effects
+
+### 8. Update Tailwind Config (tailwind.config.ts)
+- Add new blob-related animations (squish, bob, bounce)
+- Update color definitions
+- Remove orb-related animations
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/index.css` | Complete color system overhaul, remove sci-fi patterns |
+| `src/components/GlowingOrb.tsx` | Replace entirely with `BlobAdvisor.tsx` |
+| `src/pages/Index.tsx` | Update to use BlobAdvisor, remove dark overlays |
+| `src/components/ChatModeSelector.tsx` | Friendly button styling |
+| `src/components/StartButton.tsx` | Warm button design |
+| `src/components/TextChatPanel.tsx` | Light theme chat bubbles |
+| `src/components/SkillsDebugPanel.tsx` | Soft pastel styling |
+| `tailwind.config.ts` | New animations, remove orb config |
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `src/components/BlobAdvisor.tsx` | New friendly blob character with spectacles |
+
+## Technical Details
+
+### BlobAdvisor SVG Structure
+```text
+<svg>
+  <!-- Blob body - organic rounded red shape -->
+  <path d="..." fill="coral" />
+  
+  <!-- Spectacles -->
+  <circle /> <!-- left lens frame -->
+  <circle /> <!-- right lens frame -->
+  <line /> <!-- bridge -->
+  <line /> <!-- left arm -->
+  <line /> <!-- right arm -->
+  
+  <!-- Eyes (inside glasses) -->
+  <circle /> <!-- left eye dot -->
+  <circle /> <!-- right eye dot -->
+</svg>
+```
+
+### New Animations
+```text
+- blob-bob: Gentle up/down floating (slower, friendlier than current)
+- blob-speak: Alternating scaleX/scaleY for speaking motion
+- blob-listen: Slight rotation/lean animation
+- button-bounce: Playful hover bounce effect
+```
+
+### Before/After Comparison
+```text
+BEFORE (Sci-fi):
+- Dark space background
+- Glowing cyan orb with rotating rings
+- Neon shadows and grid patterns
+- Cold, techy feel
+
+AFTER (Pikuniku):
+- Soft cream background
+- Friendly red blob with glasses
+- Solid colors, simple shapes
+- Warm, approachable feel
+```
 
