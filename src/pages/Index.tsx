@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { BlobAdvisor } from "@/components/BlobAdvisor";
 import { StartButton } from "@/components/StartButton";
@@ -12,20 +13,39 @@ import { type VoicePersona } from "@/components/VoicePersonaSelector";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useTextChat } from "@/hooks/useTextChat";
 import { useSkillScores } from "@/hooks/useSkillScores";
-import { ArrowLeft, Bug, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { ArrowLeft, Bug, Settings, LogOut } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 type ChatMode = "voice" | "text" | null;
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { toast } = useToast();
+  
   const [userType, setUserType] = useState<UserType | null>(null);
   const [chatMode, setChatMode] = useState<ChatMode>(null);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState<VoicePersona>("coral");
+
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Logout failed",
+        description: error.message,
+      });
+    } else {
+      navigate("/auth");
+    }
+  };
 
   const {
     isConnected,
@@ -112,6 +132,15 @@ const Index = () => {
 
       {/* Toggle buttons - Fixed position */}
       <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleLogout}
+          className="flex items-center gap-2 bg-card shadow-md border border-border rounded-full px-4 py-2"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
         <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
           <Bug className="w-4 h-4 text-muted-foreground" />
           <Label htmlFor="debug-mode" className="text-sm text-muted-foreground cursor-pointer">
