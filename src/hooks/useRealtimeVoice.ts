@@ -136,18 +136,11 @@ export const useRealtimeVoice = (): UseRealtimeVoiceReturn => {
             type: "session.update",
             session: {
               modalities: ["text", "audio"],
-              instructions: `You are a professional and empathetic Career Advisor AI. Your role is to help users with career-related guidance including:
-- Resume and CV advice
-- Job search strategies
-- Interview preparation
-- Career transitions and pivots
-- Skill development recommendations
-- Workplace challenges
-- Salary negotiation tips
-- Professional networking guidance
-
-Be warm, encouraging, and practical in your advice. Ask clarifying questions when needed to provide more personalized guidance. Keep responses conversational and focused.`,
-              voice: "ballad",
+              instructions: `You are a virtual career advisor for mid-career workers affected by automation.
+Your goal is to identify realistic adjacent career paths, not aspirational leaps.
+You will be given structured role data when needed. Do not invent roles or resources.
+Ask one focused question at a time and explain why you are asking it.`,
+              voice: "alloy",
               input_audio_format: "pcm16",
               output_audio_format: "pcm16",
               input_audio_transcription: {
@@ -157,7 +150,7 @@ Be warm, encouraging, and practical in your advice. Ask clarifying questions whe
                 type: "server_vad",
                 threshold: 0.5,
                 prefix_padding_ms: 300,
-                silence_duration_ms: 1200,
+                silence_duration_ms: 500,
               },
             },
           }),
