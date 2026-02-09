@@ -15,7 +15,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/orb-advisor">
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route 
