@@ -66,4 +66,3 @@ After the first successful deploy, copy the URL from:
 - **Settings → Pages**
 
 Share that URL with testers for the Pollie UX review round.
-

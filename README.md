@@ -86,4 +86,3 @@ Once Pages is enabled, your app will be available at:
 For this repo, that will typically be:
 
 `https://<github-username>.github.io/orb-advisor/`
-
