@@ -1,372 +1,263 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { BlobAdvisor } from "@/components/BlobAdvisor";
-import { StartButton } from "@/components/StartButton";
-import { ConversationPanel } from "@/components/ConversationPanel";
-import { ChatModeSelector } from "@/components/ChatModeSelector";
-import { UserTypeSelector, type UserType } from "@/components/UserTypeSelector";
-import { TextChatPanel } from "@/components/TextChatPanel";
-import { SkillsDebugPanel } from "@/components/SkillsDebugPanel";
-import { VoiceSettingsPanel } from "@/components/VoiceSettingsPanel";
-import { type VoicePersona } from "@/components/VoicePersonaSelector";
-import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
-import { useTextChat } from "@/hooks/useTextChat";
-import { useSkillScores } from "@/hooks/useSkillScores";
-import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, Bug, Settings, LogOut } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { useMemo, useState } from "react";
+import { MessageCircle, MapPin, ExternalLink } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
-type ChatMode = "voice" | "text" | null;
+interface BallotPaper {
+  id: string;
+  title: string;
+  area: string;
+  roleSummary: string;
+  candidates: { name: string; party: string }[];
+  sources: { label: string; href: string }[];
+}
+
+const openingMessage =
+  "Hello, I’m Pollie. I can help you understand what’s on your ballot. I won’t tell you who to vote for, but I can explain what each vote is for, who the candidates are, and where the information comes from. What’s your postcode?";
+
+const polliePrompt = `You are Pollie, a neutral UK civic information assistant.
+Your purpose is to help people understand what they are voting for in upcoming UK elections.
+You are warm, calm, plain-speaking and impartial.
+
+You must:
+- use British English
+- explain political structures clearly
+- distinguish between county, borough, district, unitary, parish, mayoral, PCC, devolved and general elections
+- explain what each elected role typically controls
+- list candidates neutrally
+- cite official or trusted sources
+- say when information may be incomplete
+- encourage users to check their poll card or local council website for final confirmation
+
+You must not:
+- tell users who to vote for
+- recommend a party or candidate
+- rank candidates
+- infer which party best matches the user
+- campaign, persuade or favour one side
+- use emotionally loaded political language
+
+When asked for advice on who to vote for, respond:
+“I can’t tell you who to vote for, but I can help you compare candidates neutrally. For example, we can look at their stated priorities, party manifestos, local responsibilities, and public information side by side.”
+
+When data is unavailable, respond:
+“I couldn’t find confirmed election information for that postcode yet. Your poll card and local council website are the best sources to confirm this.”`;
+
+const mockBallots: BallotPaper[] = [
+  {
+    id: "hcc-fareham-portchester",
+    title: "Hampshire County Council – Fareham Portchester division",
+    area: "County election",
+    roleSummary:
+      "County councillors typically decide services such as schools, social care, roads, and libraries across the county.",
+    candidates: [
+      { name: "Candidate A", party: "Conservative Party" },
+      { name: "Candidate B", party: "Labour Party" },
+      { name: "Candidate C", party: "Liberal Democrats" },
+      { name: "Candidate D", party: "Green Party" },
+    ],
+    sources: [
+      { label: "Hampshire County Council election information", href: "https://www.hants.gov.uk" },
+      { label: "Electoral Commission guidance", href: "https://www.electoralcommission.org.uk" },
+    ],
+  },
+  {
+    id: "fbc-portchester-castle",
+    title: "Fareham Borough Council – Portchester Castle ward",
+    area: "Borough election",
+    roleSummary:
+      "Borough councillors typically oversee local planning, housing, refuse collection, and leisure services within the borough.",
+    candidates: [
+      { name: "Candidate A", party: "Conservative Party" },
+      { name: "Candidate B", party: "Labour Party" },
+      { name: "Candidate C", party: "Liberal Democrats" },
+      { name: "Candidate D", party: "Green Party" },
+    ],
+    sources: [
+      { label: "Fareham Borough Council elections", href: "https://www.fareham.gov.uk" },
+      { label: "GOV.UK voting and elections", href: "https://www.gov.uk/browse/citizenship/voting" },
+    ],
+  },
+];
+
+const isUkPostcode = (value: string) => {
+  const trimmed = value.trim().toUpperCase();
+  const regex = /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/;
+  return regex.test(trimmed);
+};
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const { toast } = useToast();
-  
-  const [userType, setUserType] = useState<UserType | null>(null);
-  const [chatMode, setChatMode] = useState<ChatMode>(null);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
-  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
-  const [selectedPersona, setSelectedPersona] = useState<VoicePersona>("coral");
+  const [postcode, setPostcode] = useState("");
+  const [submittedPostcode, setSubmittedPostcode] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const handleLogout = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Logout failed",
-        description: error.message,
-      });
-    } else {
-      navigate("/auth");
+  const ballots = useMemo(() => {
+    if (!submittedPostcode) return [];
+    if (submittedPostcode.replace(/\s/g, "").toUpperCase() === "PO169AA") {
+      return mockBallots;
     }
+    return [];
+  }, [submittedPostcode]);
+
+  const handlePostcodeSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!isUkPostcode(postcode)) {
+      setValidationError("Please enter a valid UK postcode (for example, PO16 9AA).");
+      return;
+    }
+
+    setValidationError(null);
+    setSubmittedPostcode(postcode.trim().toUpperCase());
   };
-
-  const {
-    isConnected,
-    isConnecting,
-    isSpeaking,
-    isListening,
-    messages: voiceMessages,
-    startConversation,
-    stopConversation,
-  } = useRealtimeVoice();
-
-  const {
-    messages: textMessages,
-    isLoading: isTextLoading,
-    sendMessage,
-    clearMessages,
-    initiateConversation,
-  } = useTextChat();
-
-  // Get current messages based on mode
-  const currentMessages = chatMode === "voice" ? voiceMessages : textMessages;
-  
-  // Parse skill scores from messages
-  const skills = useSkillScores(currentMessages);
-
-  // Auto-initiate text chat when mode is selected
-  useEffect(() => {
-    if (chatMode === "text" && textMessages.length === 0 && userType) {
-      initiateConversation(userType);
-    }
-  }, [chatMode, textMessages.length, initiateConversation, userType]);
-
-  const handleBack = () => {
-    if (isConnected) {
-      stopConversation();
-    }
-    clearMessages();
-    
-    // If in chat mode, go back to chat mode selection
-    if (chatMode !== null) {
-      setChatMode(null);
-    } else {
-      // If in chat mode selection, go back to user type selection
-      setUserType(null);
-    }
-  };
-
-  const handleStartConversation = useCallback(() => {
-    if (userType) {
-      startConversation(selectedPersona, userType);
-    }
-  }, [startConversation, selectedPersona, userType]);
-
-  // Dynamic content based on user type
-  const getHeaderContent = () => {
-    if (userType === "recruiter") {
-      return {
-        title: "Recruitment Advisor",
-        subtitle: "Let's find the perfect candidates for your role!",
-        hints: ["Role Definition", "Candidate Matching", "Hiring Tips"],
-      };
-    }
-    return {
-      title: "Career Advisor",
-      subtitle: "Let's discover your skills and find your perfect job!",
-      hints: ["Skills Assessment", "Local Jobs", "Career Tips"],
-    };
-  };
-
-  const headerContent = getHeaderContent();
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* Skills Debug Panel */}
-      <SkillsDebugPanel skills={skills} isVisible={showDebugPanel} />
+    <div className="min-h-screen bg-background px-6 py-8 md:px-10">
+      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.8fr_1fr]">
+        <Card className="flex min-h-[78vh] flex-col rounded-3xl border-border shadow-sm">
+          <CardHeader className="border-b border-border">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-primary/10 p-2 text-primary">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl">Pollie</CardTitle>
+                <CardDescription>AI civic guide · chat-first prototype</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
 
-      {/* Voice Settings Panel */}
-      <VoiceSettingsPanel
-        isVisible={showVoiceSettings}
-        selectedPersona={selectedPersona}
-        onSelectPersona={setSelectedPersona}
-        disabled={isConnected || isConnecting}
-      />
-
-      {/* Toggle buttons - Fixed position */}
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleLogout}
-          className="flex items-center gap-2 bg-card shadow-md border border-border rounded-full px-4 py-2"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </Button>
-        <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
-          <Bug className="w-4 h-4 text-muted-foreground" />
-          <Label htmlFor="debug-mode" className="text-sm text-muted-foreground cursor-pointer">
-            Debug
-          </Label>
-          <Switch
-            id="debug-mode"
-            checked={showDebugPanel}
-            onCheckedChange={setShowDebugPanel}
-          />
-        </div>
-        <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-md border border-border">
-          <Settings className="w-4 h-4 text-muted-foreground" />
-          <Label htmlFor="voice-settings" className="text-sm text-muted-foreground cursor-pointer">
-            Voice
-          </Label>
-          <Switch
-            id="voice-settings"
-            checked={showVoiceSettings}
-            onCheckedChange={setShowVoiceSettings}
-          />
-        </div>
-      </div>
-
-      {/* Subtle decorative shapes - angular and asymmetric */}
-      <svg className="absolute top-20 left-10 w-24 h-20" viewBox="0 0 96 80">
-        <polygon points="10,35 45,5 85,20 75,65 35,75 5,55" className="fill-secondary/30" />
-      </svg>
-      <svg className="absolute top-40 right-20 w-16 h-14" viewBox="0 0 64 56">
-        <polygon points="8,25 30,4 58,18 52,48 22,52 4,38" className="fill-accent/30" />
-      </svg>
-      <svg className="absolute bottom-32 left-1/4 w-20 h-18" viewBox="0 0 80 72">
-        <polygon points="12,30 42,6 72,22 65,58 28,68 6,48" className="fill-primary/20" />
-      </svg>
-      <svg className="absolute bottom-20 right-1/3 w-14 h-12" viewBox="0 0 56 48">
-        <polygon points="6,22 28,4 50,16 45,40 18,46 4,32" className="fill-secondary/40" />
-      </svg>
-
-      {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12">
-        {/* Logo - Top Left */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="fixed top-4 left-4 z-40"
-        >
-          <img 
-            src={logo} 
-            alt="Get In - AI Career Advice" 
-            className="h-16 md:h-20 w-auto"
-          />
-        </motion.div>
-
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mb-12"
-        >
-          <p className="text-muted-foreground text-center max-w-md text-lg">
-            {userType ? headerContent.subtitle : "Find your next opportunity or the perfect candidate"}
-          </p>
-        </motion.div>
-
-        <AnimatePresence mode="wait">
-          {/* Step 1: User Type Selection */}
-          {userType === null && (
-            <motion.div
-              key="user-type-selector"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center"
-            >
-              {/* Blob container */}
-              <div className="flex-shrink-0 mb-16">
-                <BlobAdvisor
-                  isSpeaking={false}
-                  isListening={false}
-                  isConnected={false}
-                />
+          <ScrollArea className="flex-1 px-6 py-5">
+            <div className="space-y-4">
+              <div className="max-w-3xl rounded-2xl bg-secondary/50 p-4 text-sm leading-6 text-foreground">
+                {openingMessage}
               </div>
 
-              {/* User type selector */}
-              <div className="mb-12">
-                <UserTypeSelector onSelectType={setUserType} />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 2: Chat Mode Selection */}
-          {userType !== null && chatMode === null && (
-            <motion.div
-              key="chat-mode-selector"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center"
-            >
-              {/* Back button */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute top-6 left-6"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleBack}
-                  className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-full"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </motion.div>
-
-              {/* Blob container */}
-              <div className="flex-shrink-0 mb-16">
-                <BlobAdvisor
-                  isSpeaking={false}
-                  isListening={false}
-                  isConnected={false}
-                />
-              </div>
-
-              {/* Mode selector */}
-              <div className="mb-12">
-                <ChatModeSelector onSelectMode={setChatMode} />
-              </div>
-
-              {/* Feature hints */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="absolute bottom-8 left-1/2 -translate-x-1/2"
-              >
-                <div className="flex flex-wrap justify-center gap-3 text-sm">
-                  {headerContent.hints.map((hint, index) => (
-                    <span 
-                      key={hint}
-                      className={`px-4 py-2 rounded-full text-foreground font-medium ${
-                        index === 0 ? "bg-primary/20" : 
-                        index === 1 ? "bg-secondary/40" : "bg-accent/30"
-                      }`}
-                    >
-                      {hint}
-                    </span>
-                  ))}
+              {submittedPostcode && (
+                <div className="flex justify-end">
+                  <div className="rounded-2xl bg-primary px-4 py-3 text-sm text-primary-foreground">
+                    {submittedPostcode}
+                  </div>
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {/* Voice Chat */}
-          {chatMode === "voice" && userType && (
-            <motion.div
-              key="voice"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center w-full"
-            >
-              {/* Back button */}
-              {!isConnected && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="absolute top-6 left-6"
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleBack}
-                    className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-full"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                </motion.div>
               )}
 
-              {/* Blob container */}
-              <div className="flex-shrink-0 mb-8">
-                <BlobAdvisor
-                  isSpeaking={isSpeaking}
-                  isListening={isListening}
-                  isConnected={isConnected}
-                />
-              </div>
+              {submittedPostcode && ballots.length > 0 && (
+                <div className="space-y-4 rounded-2xl bg-secondary/50 p-4">
+                  <p className="text-sm leading-6">
+                    Thanks. I’ve found two upcoming ballots for <strong>{submittedPostcode}</strong>. I’ve listed them below with a plain-English summary, neutral candidate list, and source links. Please check your poll card and local council website for final confirmation.
+                  </p>
+                </div>
+              )}
 
-              {/* Start button */}
-              <div className="mb-8">
-                <StartButton
-                  isConnected={isConnected}
-                  isConnecting={isConnecting}
-                  onStart={handleStartConversation}
-                  onStop={stopConversation}
-                />
-              </div>
+              {submittedPostcode && ballots.length === 0 && (
+                <div className="rounded-2xl bg-secondary/50 p-4 text-sm leading-6">
+                  I couldn’t find confirmed election information for that postcode yet. Your poll card and local council website are the best sources to confirm this.
+                </div>
+              )}
+            </div>
+          </ScrollArea>
 
-              {/* Conversation panel */}
-              <div className="w-full max-w-2xl">
-                <ConversationPanel messages={voiceMessages} isConnected={isConnected} />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Text Chat */}
-          {chatMode === "text" && userType && (
-            <motion.div
-              key="text"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full"
-            >
-              <TextChatPanel
-                messages={textMessages}
-                isLoading={isTextLoading}
-                onSendMessage={sendMessage}
-                onBack={handleBack}
-                skills={skills}
-                userType={userType}
+          <form onSubmit={handlePostcodeSubmit} className="border-t border-border p-4">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                value={postcode}
+                onChange={(event) => setPostcode(event.target.value)}
+                placeholder="Enter your postcode"
+                className="rounded-full"
               />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <Button type="submit" className="rounded-full sm:px-6">
+                Check ballot
+              </Button>
+            </div>
+            {validationError && <p className="mt-2 text-sm text-destructive">{validationError}</p>}
+          </form>
+        </Card>
+
+        <div className="space-y-4">
+          <Card className="rounded-3xl">
+            <CardHeader>
+              <CardTitle className="text-lg">Product target</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm leading-6 text-muted-foreground">
+              <p>
+                Build a chat-first civic guide for UK voters that explains upcoming ballots by postcode, keeps language plain and non-partisan, and shows clear source trails.
+              </p>
+              <p>
+                Success signal: a voter can understand each ballot paper and candidate list in under three minutes without receiving voting advice.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl">
+            <CardHeader>
+              <CardTitle className="text-lg">Implementation plan (mock-first)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
+                <li>Lock persona and safety rules into a reusable Pollie system prompt.</li>
+                <li>Create postcode validation and mock election lookup for PO16 9AA.</li>
+                <li>Render ballot cards with role summaries, neutral candidates, and source links.</li>
+                <li>Add follow-up prompts that ask users what they want to understand next.</li>
+                <li>Swap mock lookup for live election APIs/council feeds behind same interface.</li>
+              </ol>
+            </CardContent>
+          </Card>
+
+          {ballots.map((ballot) => (
+            <Card key={ballot.id} className="rounded-3xl">
+              <CardHeader>
+                <CardTitle className="text-base leading-6">{ballot.title}</CardTitle>
+                <CardDescription>{ballot.area}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <p className="text-muted-foreground">{ballot.roleSummary}</p>
+                <div>
+                  <p className="mb-2 font-medium">Candidates</p>
+                  <div className="flex flex-wrap gap-2">
+                    {ballot.candidates.map((candidate) => (
+                      <Badge key={`${ballot.id}-${candidate.name}`} variant="secondary" className="rounded-full px-3 py-1">
+                        {candidate.name} – {candidate.party}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 font-medium">Sources</p>
+                  <ul className="space-y-1">
+                    {ballot.sources.map((source) => (
+                      <li key={source.href}>
+                        <a
+                          href={source.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          <MapPin className="h-3.5 w-3.5" />
+                          {source.label}
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          <Card className="rounded-3xl border-dashed">
+            <CardHeader>
+              <CardTitle className="text-lg">Pollie prompt (first pass)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-muted-foreground">
+                {polliePrompt}
+              </pre>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
