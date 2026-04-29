@@ -1,59 +1,68 @@
-# Deployment (Netlify repo-import setup)
+# Deployment guide (Pollie prototype)
 
-This project is deployed via **Netlify’s Git repository import flow** (not via GitHub Actions).
+This repo includes:
+- `netlify.toml` for Netlify static hosting
+- `vercel.json` for Vercel SPA rewrites
+- `.github/workflows/deploy-static.yml` for CI build + optional deploys
 
-## Current deployment path
+## 1) Required GitHub Secrets
 
-1. Connect this repository in the Netlify dashboard.
-2. Netlify builds on push using:
-   - **Build command:** `npm run build`
-   - **Publish directory:** `dist`
-3. `netlify.toml` provides SPA routing fallback so client-side routes resolve to `index.html`.
+Set these in **GitHub → Settings → Secrets and variables → Actions**.
 
-## Required file
+### Netlify (optional)
+- `NETLIFY_AUTH_TOKEN`
+- `NETLIFY_SITE_ID`
 
-- `netlify.toml`
-  - `[build]` command is `npm run build`
-  - `[build]` publish directory is `dist`
-  - `[[redirects]]` rewrites `/*` to `/index.html` with status `200`
+### Vercel (optional)
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
 
-## Netlify dashboard settings to verify
+If Netlify secrets are present, the Netlify deploy job runs.
+If Vercel secrets are present, the Vercel deploy job runs.
+If neither is present, CI still builds and uploads `dist` as an artifact.
 
-In **Site configuration → Build & deploy**:
-- Build command: `npm run build`
-- Publish directory: `dist`
+## 2) Workflow behaviour
 
-In **Site configuration → Domain management**:
-- Add/verify custom domain if needed
+Workflow file: `.github/workflows/deploy-static.yml`
 
-## How to test before push
+- Triggers on pushes to `main`
+- Can also be triggered manually via **Run workflow**
+- Always runs `npm ci` + `npm run build`
+- Deploy jobs are conditional on secrets
+
+## 3) First deploy checklist
+
+1. Push branch and merge to `main`.
+2. Add required secrets for your hosting platform.
+3. Trigger the workflow (push or manual).
+4. Confirm green checks in **Actions**.
+5. Open deployed URL and verify:
+   - Pollie landing view renders
+   - Postcode `PO16 9AA` returns 2 mock ballot cards
+   - Direct route loads do not 404 (SPA fallback works)
+
+## 4) Local verification
 
 ```bash
 npm ci
 npm run build
-```
-
-Then validate locally with:
-
-```bash
 npm run dev
 ```
 
-## Notes
+Then open the app and test `PO16 9AA`.
 
-- No GitHub Actions deployment workflow is required for this setup.
-- If deployment behaviour changes in the future (e.g. preview channels, multi-env), update this document first.
+## 5) Zero-secret option: GitHub Pages
+
+A no-secrets deployment workflow is included at `.github/workflows/deploy-pages.yml`.
+
+- It deploys automatically from `main` to GitHub Pages
+- It builds with `--base=/<repo-name>/` so routes and assets resolve correctly
+- Enable in GitHub: **Settings → Pages → Build and deployment = GitHub Actions**
 
 
-## Troubleshooting
+After the first successful deploy, copy the URL from:
+- **Actions → Deploy to GitHub Pages → deployment step output**, or
+- **Settings → Pages**
 
-### Error: "Expected a JavaScript-or-Wasm module script but the server responded with MIME type text/html"
-
-This usually means Netlify is serving the source `index.html` (repo root) or rewriting JS asset URLs to `index.html`.
-
-Check:
-1. **Publish directory is exactly `dist`** in Netlify Site configuration.
-2. A fresh deploy has run after updating `netlify.toml`.
-3. Asset paths like `/assets/index-*.js` return JavaScript (not HTML) in DevTools Network tab.
-
-The `netlify.toml` in this repo keeps `/assets/*` as static files and only falls back to `/index.html` for app routes.
+Share that URL with testers for the Pollie UX review round.
