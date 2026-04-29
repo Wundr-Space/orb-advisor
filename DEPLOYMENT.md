@@ -51,3 +51,18 @@ npm run dev
 ```
 
 Then open the app and test `PO16 9AA`.
+
+## 5) Zero-secret option: GitHub Pages
+
+A no-secrets deployment workflow is included at `.github/workflows/deploy-pages.yml`.
+
+- It deploys automatically from `main` to GitHub Pages
+- It builds with `--base=/<repo-name>/` so routes and assets resolve correctly
+- Enable in GitHub: **Settings → Pages → Build and deployment = GitHub Actions**
+
+
+After the first successful deploy, copy the URL from:
+- **Actions → Deploy to GitHub Pages → deployment step output**, or
+- **Settings → Pages**
+
+Share that URL with testers for the Pollie UX review round.

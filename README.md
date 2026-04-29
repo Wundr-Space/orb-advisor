@@ -76,3 +76,13 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/c
 ## Deployment quick start
 
 For GitHub Actions + Netlify/Vercel deployment setup, see [`DEPLOYMENT.md`](./DEPLOYMENT.md).
+
+## Live testing URL (GitHub Pages)
+
+Once Pages is enabled, your app will be available at:
+
+`https://<github-username>.github.io/<repository-name>/`
+
+For this repo, that will typically be:
+
+`https://<github-username>.github.io/orb-advisor/`
